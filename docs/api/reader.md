@@ -64,7 +64,10 @@ reader.minute(symbol='000001', suffix='1')  # suffix = 1 一分钟，5 五分钟
 
 ## 04. 读取板块信息
 
-文件位置参考： [http://blog.sina.com.cn/s/blog_623d2d280102vt8y.html](http://blog.sina.com.cn/s/blog_623d2d280102vt8y.html)
+读取本地通达信目录下的板块信息，包括概念、风格、指数和一级行业。
+需要确保通达信目录（`tdxdir`）下存在以下文件：
+- `infoharbor_ex.code`
+- `infoharbor_block.dat`
 
 样例代码：
 
@@ -72,16 +75,15 @@ reader.minute(symbol='000001', suffix='1')  # suffix = 1 一分钟，5 五分钟
 from mootdx.reader import Reader
 
 reader = Reader.factory(market='std', tdxdir='c:/new_tdx')
-reader.block(symbol='block_zs', group=False)
+concepts = reader.block()
+
+for concept in concepts:
+    print(f"板块名称: {concept.concept_name}, 代码: {concept.concept_code}, 类型: {concept.concept_type}")
+    for stock in concept.stocks:
+        print(f"  股票: {stock.stock_name} ({stock.stock_code})")
 ```
 
-```python
-# 分组格式
-from mootdx.reader import Reader
-reader = Reader.factory(market='std', tdxdir='c:/new_tdx')
-
-reader.block(symbol='block_zs', group=True)
-```
+返回结果为 `List[Concept]` 对象列表。
 
 ## 05. 自定义板块数据
 

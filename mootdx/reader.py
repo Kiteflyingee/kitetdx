@@ -1,13 +1,43 @@
 from abc import ABC
+from dataclasses import dataclass
 from pathlib import Path
+from typing import List, Optional
 
+import pandas as pd
 from tdxpy.reader import TdxExHqDailyBarReader
 from tdxpy.reader import TdxLCMinBarReader
 from tdxpy.reader import TdxMinBarReader
 
 from mootdx.contrib.compat import MooTdxDailyBarReader
 from mootdx.utils import get_stock_market
+from mootdx.utils import read_data
 from mootdx.utils import to_data
+from mootdx.logger import logger
+
+@dataclass
+class Stock:
+    exchange: str  # '0','1','2'
+    stock_code: str
+    stock_name: Optional[str] = None
+
+    @property
+    def full_code(self):
+        exchange_map = {'0': 'sz', '1': 'sh', '2': 'bj'}
+        return f"{exchange_map.get(self.exchange, '')}{self.stock_code}"
+
+
+@dataclass
+class Concept:
+    concept_type: str  # 'GN','FG','ZS'
+    concept_name: str
+    concept_code: str
+    stocks: List[Stock]
+
+    def __init__(self, concept_type: str, concept_name: str, concept_code: str):
+        self.concept_type = concept_type
+        self.concept_name = concept_name
+        self.concept_code = concept_code
+        self.stocks = []
 
 
 class Reader(object):
@@ -148,18 +178,89 @@ class StdReader(ReaderBase):
 
         return reader.search(name=name, group=group)
 
-    def block(self, symbol='', group=False, **kwargs):
+    def block(self):
         """
         获取板块数据
-
-        :param symbol:  板块文件
-        :param group:   分组解析
-        :return: pd.dataFrame or None
+        :return: List[Concept]
         """
-        # from mootdx.block import BlockParse
-        from mootdx.parse import BaseParse
+        return self.parse_concept_data()
 
-        return BaseParse(self.tdxdir).parse(symbol, group=group, **kwargs)
+    def parse_stock_mapping(self, file_path):
+        """
+        解析股票代码-名称映射文件
+        返回: {股票代码: 股票名称} 的字典
+        """
+        stock_mapping = {}
+
+        try:
+            lines = read_data(Path(self.tdxdir) / 'T0002' / 'hq_cache' / file_path)
+            if not lines:
+                return {}
+
+            for line_num, line in enumerate(lines):
+                line = line.strip()
+                if not line:
+                    continue
+
+                # 解析格式: 000001|平安银行|平安保险,谢永林,冀光恒
+                parts = line.split('|')
+
+                if len(parts) < 2:
+                    logger.warning(f"警告: 第{line_num}行格式不正确: {line}")
+                    continue
+
+                stock_code = parts[0].strip()
+                stock_name = parts[1].strip()
+
+                stock_name = stock_name.replace(' ', '').replace('　', '')  # 全角和半角空格
+                stock_mapping[stock_code] = stock_name
+            return stock_mapping
+
+        except Exception as e:
+            logger.error(f"解析文件时出错: {e}")
+            return {}
+
+    def parse_concept_data(self) -> List[Concept]:
+        """
+        解析原始数据格式
+        """
+        stock_mapping = self.parse_stock_mapping('infoharbor_ex.code')
+        concepts = []
+
+        current_concept = None
+        current_stocks = []
+
+        # 读取 GN/FG/ZS
+        gn_lines = read_data(Path(self.tdxdir) / 'T0002' / 'hq_cache' / 'infoharbor_block.dat')
+        if gn_lines:
+            for line in gn_lines:
+                if line.startswith('#'):
+                    if current_concept:
+                        current_concept.stocks = current_stocks
+                        concepts.append(current_concept)
+                        current_stocks = []
+
+                    parts = line.strip('#').split(',')
+                    concept_info = parts[0].split('_')
+
+                    current_concept = Concept(
+                        concept_type=concept_info[0],
+                        concept_name=concept_info[1],
+                        concept_code=parts[2]
+                    )
+                else:
+                    stock_items = line.split(',')
+                    for item in stock_items:
+                        if item and '#' in item:
+                            exchange, code = item.split('#')
+                            current_stocks.append(Stock(exchange=exchange, stock_code=code, stock_name=stock_mapping.get(code)))
+
+            # 添加最后一个概念
+            if current_concept:
+                current_concept.stocks = current_stocks
+                concepts.append(current_concept)
+
+        return concepts
 
 
 class ExtReader(ReaderBase):
@@ -201,3 +302,4 @@ class ExtReader(ReaderBase):
 
         vipdoc = self.find_path(symbol=symbol, subdir='fzline', suffix='lc5')
         return self.reader.get_df(str(vipdoc)) if symbol else None
+
