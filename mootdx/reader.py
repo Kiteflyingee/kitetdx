@@ -64,7 +64,7 @@ class ReaderBase(ABC):
             market = get_stock_market(symbol, True)
 
         # 判断前缀(市场是sh和sz重置前缀)
-        if market.lower() in ['sh', 'sz']:
+        if market.lower() in ['sh', 'sz', 'bj']:
             symbol = market + symbol.lower().replace(market, '')
 
         # 判断后缀
