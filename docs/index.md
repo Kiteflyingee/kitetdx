@@ -1,31 +1,17 @@
-# 项目概述
+# Kitetdx 文档
 
-Mootdx 是一款纯 Python 语言开发的类似 TDX 的行情数据接口的实现。
+欢迎使用 Kitetdx 文档。Kitetdx 是一个基于 mootdx 的二次封装项目，旨在提供更稳定、统一的金融数据访问接口。
 
-- 在线文档: [https://www.mootdx.com](https://www.mootdx.com)
-- 国内镜像: [https://gitee.com/ibopo/mootdx](https://gitee.com/ibopo/mootdx)
-- 项目仓库: [https://github.com/mootdx/mootdx](https://github.com/mootdx/mootdx)
+## 核心模块
 
-## 项目特点
+- **[API 参考](api.md)**: 详细的 API 文档，包括 `Reader` 和 `Quotes`。
+- **[使用指南](guide.md)**: 常见使用场景和示例代码。
 
-- 基于 `pytdx` 二次封装。
-- 完全支持 `3.6+`
-- 支持全平台 `Windows / MacOS / Linux`
-- 更加友好的API接口
-- 自动匹配最优服务器
+## 快速开始
 
-## 运行环境
+```python
+from kitetdx import Quotes
 
-- 操作系统: `Windows / MacOS / Linux` 都可以运行.
-- Python: `3.6` 以及以上版本, 不支持`python2`.
-- 依赖库: `pytdx>=1.67` (之后会转向使用`tdxpy`)
-
-## 快速安装
-
-```shell
-pip install -U mootdx
+client = Quotes.factory(market='std')
+print(client.bars(symbol='600036'))
 ```
-
-## 多种运行
-
-我们提供了方便命令行调试和导出数据的命令行工具。
