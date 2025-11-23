@@ -35,15 +35,18 @@ def main():
 
     # 3. 读取板块数据
     print("\n[3] 读取板块数据:")
-    concepts = reader.block()
-    print(f"共读取到 {len(concepts)} 个板块概念")
+    df_block = reader.block()
+    print(f"共读取到 {len(df_block)} 条板块记录")
     
-    if concepts:
-        c = concepts[0]
-        print(f"示例板块: {c.concept_name} ({c.concept_code})")
-        print(f"包含股票数量: {len(c.stocks)}")
-        if c.stocks:
-            print(f"首只股票: {c.stocks[0].stock_name} ({c.stocks[0].stock_code})")
+    if not df_block.empty:
+        print("示例数据 (前5条):")
+        print(df_block.head())
+        
+        # 筛选示例
+        print("\n[4] 筛选 'GN' (概念) 板块:")
+        df_gn = reader.block(concept_type='GN')
+        print(f"共读取到 {len(df_gn)} 条概念板块记录")
+        print(df_gn.head())
 
 if __name__ == "__main__":
     main()

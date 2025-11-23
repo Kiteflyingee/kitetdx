@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "kitetdx"
-version = "0.1.0"
+version = "0.1.1"
 description = "A custom wrapper and extension for mootdx."
 authors = ["Kiteflyingee"]
 readme = "README.md"
@@ -13,18 +13,11 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Natural Language :: English",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.6",
-    "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
 ]
-
-
-[tool.poetry.scripts]
-mootdx = "mootdx.__main__:entry"
-
 
 [tool.poetry.dependencies]
 python = "^3.8"
@@ -46,37 +39,8 @@ pytest = "^7.3.1"
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
-
 [tool.pytest.ini_options]
 testpaths = "tests"
 addopts = "-p no:warnings"
 log_cli = 0
 log_cli_level = "DEBUG"
-
-
-[tool.commitizen]
-tag_format = "v$version"
-annotated_tag = true
-changelog_file = "docs/history.md"
-changelog_incremental = true
-update_changelog_on_bump = true
-version_provider = "poetry"
-version_files = [
-    "mootdx/__init__.py:__version__",
-]
-
-
-[tool.poe.tasks]
-venv = "poetry install --sync"
-lock = "poetry lock --no-update"
-
-test = "poetry run pytest"
-lint = "ruff check ./mootdx/*.py"
-
-dist = "poetry build -v"
-bump = "cz bump --yes -ch -cc --increment"
-
-sync = "make sync"
-pypi = "poetry publish --build --skip-existing"
-
-#{MAJOR,MINOR,PATCH}

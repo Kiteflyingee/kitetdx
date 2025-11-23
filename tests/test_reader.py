@@ -1,7 +1,7 @@
 import pytest
 from unittest.mock import MagicMock, patch
 from kitetdx import Reader
-from kitetdx.entities import Stock, Concept
+
 
 class TestReader:
     def test_factory(self):
@@ -46,9 +46,20 @@ class TestReader:
             mock_read.side_effect = side_effect
             
             reader = Reader.factory(market='std', tdxdir='/tmp/tdx')
-            concepts = reader.block()
+            df = reader.block()
             
-            assert len(concepts) == 2
-            assert concepts[0].concept_name == '银行'
-            assert concepts[0].stocks[0].stock_code == '600036'
-            assert concepts[0].stocks[0].stock_name == '招商银行'
+            assert not df.empty
+            assert len(df) == 2 # 2 stocks in total in mocked data
+            
+            # Check first row
+            row0 = df.iloc[0]
+            assert row0['concept_name'] == '银行'
+            assert row0['stock_code'] == '600036'
+            assert row0['stock_name'] == '招商银行'
+            
+            # Test filtering
+            df_gn = reader.block(concept_type='GN')
+            assert len(df_gn) == 2 # Both are GN in mock
+            
+            df_fg = reader.block(concept_type='FG')
+            assert df_fg.empty

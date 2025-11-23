@@ -29,7 +29,7 @@ def read_data(file_path):
         return None
 
 
-from kitetdx.entities import Stock, Concept
+
 
 
 class Reader(object):
@@ -170,12 +170,13 @@ class StdReader(ReaderBase):
 
         return reader.search(name=name, group=group)
 
-    def block(self):
+    def block(self, concept_type=None):
         """
         获取板块数据
-        :return: List[Concept]
+        :param concept_type: 板块类型，可选值 'GN' (概念), 'FG' (风格), 'ZS' (指数)
+        :return: pd.DataFrame
         """
-        return self.parse_concept_data()
+        return self.parse_concept_data(concept_type=concept_type)
 
     def parse_stock_mapping(self, file_path):
         """
@@ -212,47 +213,70 @@ class StdReader(ReaderBase):
             logger.error(f"解析文件时出错: {e}")
             return {}
 
-    def parse_concept_data(self) -> List[Concept]:
+    def parse_concept_data(self, concept_type=None) -> pd.DataFrame:
         """
-        解析原始数据格式
+        解析原始数据格式为 DataFrame
         """
         stock_mapping = self.parse_stock_mapping('infoharbor_ex.code')
-        concepts = []
+        data_rows = []
 
-        current_concept = None
-        current_stocks = []
+        current_type = None
+        current_name = None
+        current_code = None
 
         # 读取 GN/FG/ZS
-        gn_lines = read_data(Path(self.tdxdir) / 'T0002' / 'hq_cache' / 'infoharbor_block.dat')
+        file_path = Path(self.tdxdir) / 'T0002' / 'hq_cache' / 'infoharbor_block.dat'
+        gn_lines = read_data(file_path)
+        
         if gn_lines:
             for line in gn_lines:
                 if line.startswith('#'):
-                    if current_concept:
-                        current_concept.stocks = current_stocks
-                        concepts.append(current_concept)
-                        current_stocks = []
-
                     parts = line.strip('#').split(',')
                     concept_info = parts[0].split('_')
-
-                    current_concept = Concept(
-                        concept_type=concept_info[0],
-                        concept_name=concept_info[1],
-                        concept_code=parts[2]
-                    )
+                    
+                    # concept_info example: ['GN', '银行']
+                    # parts example: ['GN_银行', '1', '880471']
+                    
+                    c_type = concept_info[0]
+                    c_name = concept_info[1]
+                    c_code = parts[2] if len(parts) > 2 else ''
+                    
+                    # Filter by concept_type if provided
+                    if concept_type and c_type != concept_type:
+                        current_type = None # Skip this block
+                        continue
+                        
+                    current_type = c_type
+                    current_name = c_name
+                    current_code = c_code
+                    
                 else:
+                    if current_type is None:
+                        continue
+                        
                     stock_items = line.split(',')
                     for item in stock_items:
                         if item and '#' in item:
                             exchange, code = item.split('#')
-                            current_stocks.append(Stock(exchange=exchange, stock_code=code, stock_name=stock_mapping.get(code)))
+                            stock_name = stock_mapping.get(code)
+                            
+                            data_rows.append({
+                                'concept_type': current_type,
+                                'concept_name': current_name,
+                                'concept_code': current_code,
+                                'stock_code': code,
+                                'stock_name': stock_name
+                            })
 
-            # 添加最后一个概念
-            if current_concept:
-                current_concept.stocks = current_stocks
-                concepts.append(current_concept)
-
-        return concepts
+        df = pd.DataFrame(data_rows)
+        if not df.empty:
+            # Reorder columns and add ID
+            df.reset_index(inplace=True)
+            df.rename(columns={'index': 'ID'}, inplace=True)
+            df['ID'] = df['ID'] + 1
+            df = df[['ID', 'concept_type', 'concept_name', 'concept_code', 'stock_code', 'stock_name']]
+            
+        return df
 
 
 class ExtReader(ReaderBase):

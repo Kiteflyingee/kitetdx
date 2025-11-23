@@ -96,10 +96,12 @@ Reader.factory(market='std', tdxdir='C:/new_tdx')
 #### `fzline(symbol)`
 读取5分钟线数据 (Alias for minute(suffix=5))。
 
-#### `block()`
+#### `block(concept_type=None)`
 读取板块数据。
-- **返回**: `List[kitetdx.entities.Concept]`
-- **注意**: 这是 `kitetdx` 特有的增强功能，返回结构化的实体对象。
+- `concept_type`: 可选，筛选板块类型 ('GN', 'FG', 'ZS')
+- **返回**: `pd.DataFrame`
+- **列名**: `ID`, `concept_type`, `concept_name`, `concept_code`, `stock_code`, `stock_name`
+
 
 ## Affair (财务数据)
 
