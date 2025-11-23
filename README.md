@@ -56,11 +56,10 @@ df = client.minute(symbol='000001')
 print(df)
 ```
 
-## 架构说明
+## 文档
 
-- **`kitetdx.reader`**: 定制实现，不依赖 `mootdx.reader`。
-- **`kitetdx.quotes`**: `mootdx.quotes` 的完整封装。
-- **`kitetdx.entities`**: 统一的数据实体定义（如 `Stock`, `Concept`）。
+- [API 参考](docs/api.md)
+- [使用指南](docs/guide.md)
 
 ## 致谢
 
