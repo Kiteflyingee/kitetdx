@@ -2,7 +2,7 @@
 name = "kitetdx"
 version = "0.1.0"
 description = "A custom wrapper and extension for mootdx."
-authors = Kiteflyingee
+authors = ["Kiteflyingee"]
 readme = "README.md"
 license = "MIT"
 homepage = "https://github.com/Kiteflyingee/kitetdx"
