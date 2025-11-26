@@ -25,15 +25,7 @@ def main():
     else:
         print("未找到数据")
 
-    # 2. 读取5分钟线
-    print(f"\n[2] 读取 {symbol} 5分钟线数据 (前5条):")
-    df_min = reader.minute(symbol, suffix=5)
-    if df_min is not None and not df_min.empty:
-        print(df_min.head())
-    else:
-        print("未找到数据")
-
-    # 3. 读取板块数据
+    # 2. 读取板块数据
     print("\n[3] 读取板块数据:")
     df_block = reader.block()
     print(f"共读取到 {len(df_block)} 条板块记录")

@@ -2,9 +2,12 @@ from abc import ABC
 from dataclasses import dataclass
 from pathlib import Path
 from typing import List, Optional
+import zipfile
+import urllib.request
+import datetime  
 
 import pandas as pd
-from tdxpy.reader import TdxExHqDailyBarReader
+from tdxpy.reader import TdxExHqDailyBarReader, TdxFileNotFoundException
 from tdxpy.reader import TdxLCMinBarReader
 from tdxpy.reader import TdxMinBarReader
 
@@ -13,22 +16,7 @@ from mootdx.utils import get_stock_market
 # from mootdx.utils import read_data
 from mootdx.utils import to_data
 from mootdx.logger import logger
-
-def read_data(file_path):
-    """
-    读取文件内容
-    """
-    try:
-        with open(file_path, 'r', encoding='gbk') as f:
-            return f.read().strip().split('\n')
-    except FileNotFoundError:
-        logger.error(f"错误: 文件 {file_path} 不存在")
-        return None
-    except Exception as e:
-        logger.error(f"读取文件时出错: {e}")
-        return None
-
-
+from kitetdx.utils import read_data
 
 
 
@@ -120,8 +108,57 @@ class StdReader(ReaderBase):
         symbol = Path(symbol).stem
         reader = MooTdxDailyBarReader()
         vipdoc = self.find_path(symbol=symbol, subdir='lday', suffix='day')
+        
+        need_download = False
+        try:
+            mtime = vipdoc.stat().st_mtime
+            file_date = datetime.date.fromtimestamp(mtime)
+            today = datetime.date.today()
+            
+            # 如果文件日期不是今天，则标记为需要下载
+            if file_date != today:
+                logger.info(f"文件过期 (文件日期: {file_date}, 今天: {today})")
+                need_download = True
+        except Exception as e:
+            logger.warning(f"无法检查文件日期，准备重新下载: {e}")
+            need_download = True
 
+        if vipdoc is None or need_download:
+            # 下载并解压文件
+            logger.info("未找到本地文件，开始从 https://data.tdx.com.cn/vipdoc/hsjday.zip 下载...")
+            zip_url = 'https://data.tdx.com.cn/vipdoc/hsjday.zip'
+            vipdoc_dir = Path(self.tdxdir) / 'vipdoc'
+            
+            zip_path = Path(self.tdxdir) / 'hsjday.zip'
+            
+            try:
+                # 下载文件
+                urllib.request.urlretrieve(zip_url, zip_path)
+                logger.info(f"下载完成: {zip_path}")
+
+                with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+                    logger.info(f"开始解压...")
+                    
+                    for member in zip_ref.infolist():
+                        member.filename = member.filename.replace('\\', '/')
+                        
+                        if member.filename.startswith('/'):
+                            member.filename = member.filename.lstrip('/')
+
+                        zip_ref.extract(member, vipdoc_dir)        
+                    
+                logger.info(f"解压完成到: {vipdoc_dir}")
+                
+                # 删除zip文件
+                zip_path.unlink()
+                
+                # 重新查找文件
+                vipdoc = self.find_path(symbol=symbol, subdir='lday', suffix='day')
+            except Exception as e:
+                logger.error(f"下载或解压失败: {e}")
+        
         result = reader.get_df(str(vipdoc)) if vipdoc else None
+       
         return to_data(result, symbol=symbol, **kwargs)
 
     def minute(self, symbol=None, suffix=1, **kwargs):  # noqa
@@ -181,14 +218,14 @@ class StdReader(ReaderBase):
     def parse_stock_mapping(self, file_path):
         """
         解析股票代码-名称映射文件
-        返回: {股票代码: 股票名称} 的字典
+        返回: pd.DataFrame
         """
-        stock_mapping = {}
+        data = []
 
         try:
             lines = read_data(Path(self.tdxdir) / 'T0002' / 'hq_cache' / file_path)
             if not lines:
-                return {}
+                return pd.DataFrame()
 
             for line_num, line in enumerate(lines):
                 line = line.strip()
@@ -206,18 +243,20 @@ class StdReader(ReaderBase):
                 stock_name = parts[1].strip()
 
                 stock_name = stock_name.replace(' ', '').replace('　', '')  # 全角和半角空格
-                stock_mapping[stock_code] = stock_name
-            return stock_mapping
+                data.append({'stock_code': stock_code, 'stock_name': stock_name})
+            
+            return pd.DataFrame(data)
 
         except Exception as e:
             logger.error(f"解析文件时出错: {e}")
-            return {}
+            return pd.DataFrame()
 
     def parse_concept_data(self, concept_type=None) -> pd.DataFrame:
         """
         解析原始数据格式为 DataFrame
         """
-        stock_mapping = self.parse_stock_mapping('infoharbor_ex.code')
+        stock_mapping_df = self.parse_stock_mapping('infoharbor_ex.code')
+        stock_mapping = dict(zip(stock_mapping_df['stock_code'], stock_mapping_df['stock_name'])) if not stock_mapping_df.empty else {}
         data_rows = []
 
         current_type = None
