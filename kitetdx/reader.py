@@ -2,8 +2,6 @@ from abc import ABC
 from dataclasses import dataclass
 from pathlib import Path
 from typing import List, Optional
-import zipfile
-import urllib.request
 import datetime  
 
 import pandas as pd
@@ -17,6 +15,7 @@ from mootdx.utils import get_stock_market
 from mootdx.utils import to_data
 from mootdx.logger import logger
 from kitetdx.utils import read_data
+from kitetdx.downloader import TdxSeleniumDownloader
 
 
 def get_last_trading_day(date=None):
@@ -169,36 +168,18 @@ class StdReader(ReaderBase):
             need_download = True
 
         if vipdoc is None or need_download:
-            # 下载并解压文件
-            logger.info("未找到本地文件，开始从 https://data.tdx.com.cn/vipdoc/hsjday.zip 下载...")
-            zip_url = 'https://data.tdx.com.cn/vipdoc/hsjday.zip'
-            vipdoc_dir = Path(self.tdxdir) / 'vipdoc'
-            
-            zip_path = Path(self.tdxdir) / 'hsjday.zip'
+            # 使用 Selenium 下载并解压文件（绕过反爬虫）
+            logger.info("未找到本地文件或文件过期，开始使用 Selenium 下载...")
             
             try:
-                # 下载文件
-                urllib.request.urlretrieve(zip_url, zip_path)
-                logger.info(f"下载完成: {zip_path}")
-
-                with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-                    logger.info(f"开始解压...")
-                    
-                    for member in zip_ref.infolist():
-                        member.filename = member.filename.replace('\\', '/')
-                        
-                        if member.filename.startswith('/'):
-                            member.filename = member.filename.lstrip('/')
-
-                        zip_ref.extract(member, vipdoc_dir)        
-                    
-                logger.info(f"解压完成到: {vipdoc_dir}")
+                downloader = TdxSeleniumDownloader(self.tdxdir)
+                success = downloader.download(timeout=300)
                 
-                # 删除zip文件
-                zip_path.unlink()
-                
-                # 重新查找文件
-                vipdoc = self.find_path(symbol=symbol, subdir='lday', suffix='day')
+                if success:
+                    # 重新查找文件
+                    vipdoc = self.find_path(symbol=symbol, subdir='lday', suffix='day')
+                else:
+                    logger.error("下载失败")
             except Exception as e:
                 logger.error(f"下载或解压失败: {e}")
         
