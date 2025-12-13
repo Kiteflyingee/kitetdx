@@ -66,6 +66,32 @@ Quotes.factory(market='std', **kwargs)
 - `symbol`: 股票代码
 - **返回**: `pd.DataFrame`
 
+#### `k(symbol, begin=None, end=None)`
+读取K线信息。
+- `symbol`: 股票代码 (str)
+- `begin`: 开始日期 (str, 可选, e.g., '20230101')
+- `end`: 截止日期 (str, 可选, e.g., '20231231')
+- **返回**: `pd.DataFrame` 或 `None`
+
+#### `ohlc(**kwargs)`
+读取K线信息 (k 方法的别名)。
+- 参数同 `k` 方法
+- **返回**: `pd.DataFrame` 或 `None`
+
+#### `stock_count(market=MARKET_SH)`
+获取市场股票数量。
+- `market`: 股票市场代码 (`MARKET_SH` = 上海, `MARKET_SZ` = 深圳)
+- **返回**: `int`
+
+#### `stocks(market=MARKET_SH)`
+获取股票列表。
+- `market`: 股票市场代码 (`MARKET_SH` = 上海, `MARKET_SZ` = 深圳)
+- **返回**: `pd.DataFrame`
+
+#### `stock_all()`
+获取所有股票列表（包含沪深两市）。
+- **返回**: `pd.DataFrame`
+
 #### `block(tofile='block.dat')`
 获取证券板块信息 (在线)。
 - `tofile`: 保存文件名
