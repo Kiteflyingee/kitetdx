@@ -168,8 +168,8 @@ class StdReader(ReaderBase):
             need_download = True
 
         if vipdoc is None or need_download:
-            # 使用 Selenium 下载并解压文件（绕过反爬虫）
-            logger.info("未找到本地文件或文件过期，开始使用 Selenium 下载...")
+            # 优先使用 urllib 下载，失败时回退到 Selenium
+            logger.info("未找到本地文件或文件过期，开始下载...")
             
             try:
                 downloader = TdxSeleniumDownloader(self.tdxdir)
