@@ -26,12 +26,15 @@ df_min = reader.minute('600036', suffix=5) # 5分钟线
 
 ```python
 concepts = reader.block()
-for concept in concepts:
-    print(f"板块: {concept.concept_name} ({concept.concept_code})")
-    print(f"包含股票数: {len(concept.stocks)}")
-    # 打印前5只股票
-    for stock in concept.stocks[:5]:
-        print(f"  - {stock.stock_name} ({stock.stock_code})")
+```
+返回Dataframe
+```
+          ID concept_type concept_name concept_code stock_code stock_name
+0          1           GN        通达信88       880515     000025        特力Ａ
+1          2           GN        通达信88       880515     000100      TCL科技
+2          3           GN        通达信88       880515     000538       云南白药
+3          4           GN        通达信88       880515     000708       中信特钢
+4          5           GN        通达信88       880515     000725       京东方Ａ
 ```
 
 ## 在线行情获取
