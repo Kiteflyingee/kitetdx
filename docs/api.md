@@ -17,6 +17,12 @@ Quotes.factory(market='std', **kwargs)
 - `bestip`: 是否自动选择最优 IP (默认 True)
 - `timeout`: 超时时间 (默认 15s)
 
+### 常量
+
+MARKET_SZ = 0  # 深市
+MARKET_SH = 1  # 沪市
+MARKET_BJ = 2  # 北交
+
 ### 方法列表
 
 #### `bars(symbol, frequency=9, start=0, offset=800)`
@@ -82,12 +88,12 @@ Quotes.factory(market='std', **kwargs)
 
 #### `stock_count(market=MARKET_SH)`
 获取市场股票数量。
-- `market`: 股票市场代码 (`MARKET_SH` = 上海, `MARKET_SZ` = 深圳)
+- `market`: 股票市场代码 (1 = 上海, 0 = 深圳, 2 = 北京)
 - **返回**: `int`
 
 #### `stocks(market=MARKET_SH)`
 获取股票列表。
-- `market`: 股票市场代码 (`MARKET_SH` = 上海, `MARKET_SZ` = 深圳)
+- `market`: 股票市场代码 (1 = 上海, 0 = 深圳, 2 = 北京)
 - **返回**: `pd.DataFrame`
 
 #### `stock_all()`
