@@ -133,27 +133,8 @@ class StdReader(ReaderBase):
             
             try:
                 # 下载文件
-                logger.info("开始下载文件...")
                 urllib.request.urlretrieve(zip_url, zip_path)
-                
-                # 检查文件是否下载完整
-                if not zip_path.exists():
-                    raise FileNotFoundError("下载的文件不存在")
-                
-                file_size = zip_path.stat().st_size
-                if file_size == 0:
-                    raise ValueError("下载的文件为空")
-                
-                logger.info(f"下载完成: {zip_path} (大小: {file_size} bytes)")
-                
-                # 验证zip文件完整性
-                try:
-                    with zipfile.ZipFile(zip_path, 'r') as test_zip:
-                        test_zip.testzip()  # 测试zip文件完整性
-                except zipfile.BadZipFile:
-                    raise ValueError("下载的zip文件损坏")
-                
-                logger.info("zip文件完整性验证通过")
+                logger.info(f"下载完成: {zip_path}")
 
                 with zipfile.ZipFile(zip_path, 'r') as zip_ref:
                     logger.info(f"开始解压...")
