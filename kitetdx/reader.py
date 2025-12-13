@@ -19,6 +19,40 @@ from mootdx.logger import logger
 from kitetdx.utils import read_data
 
 
+def get_last_trading_day(date=None):
+    """
+    获取最近的交易日
+    
+    Args:
+        date: 指定日期，默认为今天
+        
+    Returns:
+        最近的交易日
+    """
+    if date is None:
+        date = datetime.date.today()
+    
+    # 中国股市交易日：周一到周五，排除法定节假日
+    # 这里先简单处理周末，不考虑节假日
+    while date.weekday() >= 5:  # 周六(5)和周日(6)
+        date -= datetime.timedelta(days=1)
+    
+    return date
+
+
+def is_trading_day(date):
+    """
+    判断是否为交易日（简单版本，只判断周末）
+    
+    Args:
+        date: 要判断的日期
+        
+    Returns:
+        bool: 是否为交易日
+    """
+    return date.weekday() < 5  # 周一到周五
+
+
 
 class Reader(object):
     @staticmethod
@@ -110,17 +144,28 @@ class StdReader(ReaderBase):
         vipdoc = self.find_path(symbol=symbol, subdir='lday', suffix='day')
         
         need_download = False
-        try:
-            mtime = vipdoc.stat().st_mtime
-            file_date = datetime.date.fromtimestamp(mtime)
-            today = datetime.date.today()
-            
-            # 如果文件日期不是今天，则标记为需要下载
-            if file_date != today:
-                logger.info(f"文件过期 (文件日期: {file_date}, 今天: {today})")
+        if vipdoc is not None:
+            try:
+                mtime = vipdoc.stat().st_mtime
+                file_date = datetime.date.fromtimestamp(mtime)
+                today = datetime.date.today()
+                
+                # 获取最近的交易日
+                last_trading_day = get_last_trading_day(today)
+                
+                # 如果文件日期早于最近的交易日，则需要下载
+                if file_date < last_trading_day:
+                    if is_trading_day(today):
+                        logger.info(f"文件过期 (文件日期: {file_date}, 最近交易日: {last_trading_day})")
+                    else:
+                        logger.info(f"文件过期 (文件日期: {file_date}, 最近交易日: {last_trading_day}, 今天非交易日)")
+                    need_download = True
+                else:
+                    logger.info(f"文件是最新的 (文件日期: {file_date}, 最近交易日: {last_trading_day})")
+            except Exception as e:
+                logger.warning(f"无法检查文件日期，准备重新下载: {e}")
                 need_download = True
-        except Exception as e:
-            logger.warning(f"无法检查文件日期，准备重新下载: {e}")
+        else:
             need_download = True
 
         if vipdoc is None or need_download:

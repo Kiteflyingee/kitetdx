@@ -67,3 +67,5 @@ target/
 .idea
 .github
 .DS_Store
+
+vipdoc/*
