@@ -4,6 +4,7 @@
 
 import json
 import datetime
+import time
 from pathlib import Path
 from typing import Optional
 
@@ -16,6 +17,10 @@ from mootdx.logger import logger
 # 新浪复权因子接口
 ZH_SINA_HFQ_URL = 'https://finance.sina.com.cn/realstock/company/{}/hfq.js'
 ZH_SINA_QFQ_URL = 'https://finance.sina.com.cn/realstock/company/{}/qfq.js'
+
+# 缓存目录和过期时间（一周 = 7天）
+CACHE_DIR = Path.home() / '.kitetdx' / 'fq_cache'
+CACHE_EXPIRE_DAYS = 7
 
 
 def _get_sina_symbol(symbol: str) -> str:
@@ -41,9 +46,58 @@ def _get_sina_symbol(symbol: str) -> str:
         return f'sz{symbol}'
 
 
+def _get_cache_path(symbol: str, method: str) -> Path:
+    """获取缓存文件路径"""
+    sina_symbol = _get_sina_symbol(symbol)
+    return CACHE_DIR / f'{sina_symbol}_{method}.json'
+
+
+def _is_cache_valid(cache_path: Path) -> bool:
+    """检查缓存是否有效（一周内）"""
+    if not cache_path.exists():
+        return False
+    
+    try:
+        mtime = cache_path.stat().st_mtime
+        cache_age_days = (time.time() - mtime) / (24 * 3600)
+        return cache_age_days < CACHE_EXPIRE_DAYS
+    except Exception:
+        return False
+
+
+def _load_cache(cache_path: Path) -> Optional[pd.DataFrame]:
+    """从缓存加载复权因子"""
+    try:
+        with open(cache_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        
+        if not data.get('data'):
+            return None
+        
+        df = pd.DataFrame(data['data'])
+        df.columns = ['date', 'factor']
+        df['date'] = pd.to_datetime(df['date'])
+        df['factor'] = df['factor'].astype(float)
+        df = df.set_index('date')
+        return df
+    except Exception as e:
+        logger.warning(f"加载缓存失败: {e}")
+        return None
+
+
+def _save_cache(cache_path: Path, data: list):
+    """保存复权因子到缓存"""
+    try:
+        CACHE_DIR.mkdir(parents=True, exist_ok=True)
+        with open(cache_path, 'w', encoding='utf-8') as f:
+            json.dump({'data': data, 'update_time': time.time()}, f)
+    except Exception as e:
+        logger.warning(f"保存缓存失败: {e}")
+
+
 def fetch_fq_factor(symbol: str, method: str = 'qfq', timeout: int = 10) -> Optional[pd.DataFrame]:
     """
-    从新浪获取复权因子
+    从新浪获取复权因子（带缓存，一周内不重复请求）
     
     Args:
         symbol: 股票代码
@@ -53,14 +107,21 @@ def fetch_fq_factor(symbol: str, method: str = 'qfq', timeout: int = 10) -> Opti
     Returns:
         复权因子DataFrame，包含 date 和 factor 列
     """
+    # 检查缓存
+    cache_path = _get_cache_path(symbol, method)
+    if _is_cache_valid(cache_path):
+        logger.debug(f"使用缓存的复权因子: {symbol} {method}")
+        cached_df = _load_cache(cache_path)
+        if cached_df is not None:
+            return cached_df
+    
+    # 缓存无效，从网络获取
     sina_symbol = _get_sina_symbol(symbol)
     
     if method == 'hfq':
         url = ZH_SINA_HFQ_URL.format(sina_symbol)
-        factor_col = 'hfq_factor'
     else:
         url = ZH_SINA_QFQ_URL.format(sina_symbol)
-        factor_col = 'qfq_factor'
     
     try:
         req = urllib.request.Request(
@@ -92,6 +153,10 @@ def fetch_fq_factor(symbol: str, method: str = 'qfq', timeout: int = 10) -> Opti
             logger.warning(f"获取 {symbol} {method} 复权因子为空")
             return None
         
+        # 保存到缓存
+        _save_cache(cache_path, data['data'])
+        logger.debug(f"已缓存复权因子: {symbol} {method}")
+        
         df = pd.DataFrame(data['data'])
         df.columns = ['date', 'factor']
         df['date'] = pd.to_datetime(df['date'])
@@ -102,6 +167,10 @@ def fetch_fq_factor(symbol: str, method: str = 'qfq', timeout: int = 10) -> Opti
         
     except Exception as e:
         logger.error(f"获取 {symbol} {method} 复权因子失败: {e}")
+        # 网络失败时尝试使用过期缓存
+        if cache_path.exists():
+            logger.info(f"网络失败，尝试使用过期缓存: {symbol}")
+            return _load_cache(cache_path)
         return None
 
 
@@ -190,9 +259,6 @@ def adjust_price(df: pd.DataFrame, symbol: str, method: str = 'qfq') -> pd.DataF
     
     # 删除因子列
     df_merged = df_merged.drop('factor', axis=1)
-    
-    # 恢复原始索引格式
-    df_merged = df_merged.reset_index()
     
     return df_merged
 

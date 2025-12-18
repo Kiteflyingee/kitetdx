@@ -3,7 +3,7 @@ from pandas import DataFrame
 from mootdx.logger import logger
 
 
-def to_data(v, **kwargs):
+def to_data(v, first=True, **kwargs):
     """
     数值转换为 pd.DataFrame，优先使用 mootdx 的方法，失败时回退到自定义实现
     
@@ -11,6 +11,8 @@ def to_data(v, **kwargs):
     :return: pd.DataFrame
     """
     # 优先尝试使用 mootdx 的 to_data
+    if first:
+        return _to_data_fallback(v, **kwargs)
     try:
         from mootdx.utils import to_data as mootdx_to_data
         return mootdx_to_data(v, **kwargs)

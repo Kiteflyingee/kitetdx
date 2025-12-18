@@ -171,8 +171,6 @@ class StdReader(ReaderBase):
                     else:
                         logger.info(f"文件过期 (文件日期: {file_date}, 最近交易日: {last_trading_day})")
                         need_download = True
-                else:
-                    logger.info(f"文件是最新的 (文件日期: {file_date})")
             except Exception as e:
                 logger.warning(f"无法检查文件日期，准备重新下载: {e}")
                 need_download = True
