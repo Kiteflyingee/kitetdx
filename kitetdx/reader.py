@@ -202,7 +202,15 @@ class StdReader(ReaderBase):
                 except Exception as e:
                     logger.error(f"下载或解压失败: {e}")
         
-        result = reader.get_df(str(vipdoc)) if vipdoc else None
+        if vipdoc is None:
+            logger.warning(f"未找到 {symbol} 的日线数据文件")
+            return None
+        
+        result = reader.get_df(str(vipdoc))
+        
+        if result is None or result.empty:
+            logger.warning(f"读取 {symbol} 日线数据为空")
+            return None
        
         return to_data(result, symbol=symbol, **kwargs)
 
