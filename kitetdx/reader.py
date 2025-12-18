@@ -150,57 +150,61 @@ class StdReader(ReaderBase):
         """
         symbol = Path(symbol).stem
         reader = MooTdxDailyBarReader()
-        vipdoc = self.find_path(symbol=symbol, subdir='lday', suffix='day')
         
+        # 检查 lday 目录的更新时间，而不是单个股票文件
         need_download = False
-        if vipdoc is not None:
+        lday_dir = Path(self.tdxdir) / 'vipdoc' / 'sh' / 'lday'
+        
+        if lday_dir.exists():
             try:
-                mtime = vipdoc.stat().st_mtime
-                file_date = datetime.date.fromtimestamp(mtime)
+                mtime = lday_dir.stat().st_mtime
+                dir_date = datetime.date.fromtimestamp(mtime)
                 today = datetime.date.today()
                 
                 # 获取最近的交易日
                 last_trading_day = get_last_trading_day(today)
                 
-                # 如果文件日期早于最近的交易日，则需要下载
-                if file_date < last_trading_day:
+                # 如果目录日期早于最近的交易日，则需要下载
+                if dir_date < last_trading_day:
                     # 如果今天是交易日但还没收盘，不下载
                     if is_trading_day(today) and not is_after_market_close():
-                        logger.info(f"文件过期 (文件日期: {file_date})，但今天尚未收盘，暂不下载")
+                        logger.debug(f"数据目录过期 (目录日期: {dir_date})，但今天尚未收盘，暂不下载")
                         need_download = False
                     else:
-                        logger.info(f"文件过期 (文件日期: {file_date}, 最近交易日: {last_trading_day})")
+                        logger.info(f"数据目录过期 (目录日期: {dir_date}, 最近交易日: {last_trading_day})")
                         need_download = True
+                else:
+                    logger.debug(f"数据目录是最新的 (目录日期: {dir_date})")
             except Exception as e:
-                logger.warning(f"无法检查文件日期，准备重新下载: {e}")
+                logger.warning(f"无法检查目录日期，准备重新下载: {e}")
                 need_download = True
         else:
             need_download = True
 
-        if vipdoc is None or need_download:
-            # 本地没有文件时，无论是否收盘都要下载
-            # 只有本地有文件且过期时，才判断是否收盘
+        if need_download:
+            # 目录不存在时，无论是否收盘都要下载
+            # 只有目录存在且过期时，才判断是否收盘
             should_download = True
-            if vipdoc is not None and need_download:
-                # 有文件但过期，交易日未收盘不下载
+            if lday_dir.exists():
+                # 目录存在但过期，交易日未收盘不下载
                 if is_trading_day(datetime.date.today()) and not is_after_market_close():
-                    logger.info("文件过期，但今天尚未收盘，暂不下载")
+                    logger.info("数据过期，但今天尚未收盘，暂不下载")
                     should_download = False
             
             if should_download:
-                logger.info("未找到本地文件或文件过期，开始下载...")
+                logger.info("未找到数据目录或数据过期，开始下载...")
                 
                 try:
                     downloader = TdxSeleniumDownloader(self.tdxdir)
                     success = downloader.download(timeout=300)
                     
-                    if success:
-                        # 重新查找文件
-                        vipdoc = self.find_path(symbol=symbol, subdir='lday', suffix='day')
-                    else:
+                    if not success:
                         logger.error("下载失败")
                 except Exception as e:
                     logger.error(f"下载或解压失败: {e}")
+        
+        # 查找股票文件
+        vipdoc = self.find_path(symbol=symbol, subdir='lday', suffix='day')
         
         if vipdoc is None:
             logger.warning(f"未找到 {symbol} 的日线数据文件")
