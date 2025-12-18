@@ -17,13 +17,14 @@ def main():
     reader = Reader.factory(market='std', tdxdir=tdx_dir)
 
     # 1. 读取日线数据
-    symbol = '600036'
-    print(f"\n[1] 读取 {symbol} 日线数据 (前5条):")
-    df = reader.daily(symbol)
+    symbol = '002728'
+    print(f"\n[1] 读取 {symbol} 日线数据 (后5条):")
+    df = reader.daily(symbol, adjust='qfq')
     if df is not None and not df.empty:
-        print(df.head())
+        print(df.tail())
     else:
         print("未找到数据")
+    print(df[df.date=='2022-01-12'])
 
     # 2. 读取板块数据
     print("\n[3] 读取板块数据:")

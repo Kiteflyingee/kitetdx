@@ -11,10 +11,8 @@ from tdxpy.reader import TdxMinBarReader
 
 from mootdx.contrib.compat import MooTdxDailyBarReader
 from mootdx.utils import get_stock_market
-# from mootdx.utils import read_data
-from mootdx.utils import to_data
 from mootdx.logger import logger
-from kitetdx.utils import read_data
+from kitetdx.utils import read_data, to_data
 from kitetdx.downloader import TdxSeleniumDownloader
 
 
