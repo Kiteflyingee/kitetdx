@@ -204,7 +204,7 @@ class TdxSeleniumDownloader:
     
     def _unzip_file(self, zip_path: Path) -> bool:
         """
-        解压 ZIP 文件
+        解压 ZIP 文件，覆盖已有文件
         
         Args:
             zip_path: ZIP 文件路径
@@ -220,7 +220,7 @@ class TdxSeleniumDownloader:
             
             with zipfile.ZipFile(zip_path, 'r') as zip_ref:
                 file_list = zip_ref.infolist()
-                logger.info(f"包含 {len(file_list)} 个文件，解压中...")
+                logger.info(f"包含 {len(file_list)} 个文件，解压并覆盖旧文件...")
                 
                 for member in file_list:
                     # 处理路径分隔符和安全检查
@@ -228,8 +228,21 @@ class TdxSeleniumDownloader:
                     target_path = self.vipdoc_dir / member.filename
                     
                     # 安全检查：确保解压路径在 vipdoc_dir 内
-                    if str(target_path.resolve()).startswith(str(self.vipdoc_dir.resolve())):
-                        zip_ref.extract(member, self.vipdoc_dir)
+                    if not str(target_path.resolve()).startswith(str(self.vipdoc_dir.resolve())):
+                        continue
+                    
+                    # 如果是目录，确保目录存在
+                    if member.is_dir():
+                        target_path.mkdir(parents=True, exist_ok=True)
+                    else:
+                        # 确保父目录存在
+                        target_path.parent.mkdir(parents=True, exist_ok=True)
+                        # 如果文件已存在，先删除再解压（覆盖）
+                        if target_path.exists():
+                            target_path.unlink()
+                        # 解压文件
+                        with zip_ref.open(member) as src, open(target_path, 'wb') as dst:
+                            dst.write(src.read())
             
             logger.info(f"成功！数据已解压至: {self.vipdoc_dir}")
             

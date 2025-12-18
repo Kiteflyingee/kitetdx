@@ -50,6 +50,18 @@ def is_trading_day(date):
     return date.weekday() < 5  # 周一到周五
 
 
+def is_after_market_close():
+    """
+    判断当前是否已收盘（15:00之后）
+    
+    Returns:
+        bool: 是否已收盘
+    """
+    now = datetime.datetime.now()
+    market_close = now.replace(hour=15, minute=0, second=0, microsecond=0)
+    return now >= market_close
+
+
 
 class Reader(object):
     @staticmethod
@@ -152,13 +164,15 @@ class StdReader(ReaderBase):
                 
                 # 如果文件日期早于最近的交易日，则需要下载
                 if file_date < last_trading_day:
-                    if is_trading_day(today):
-                        logger.info(f"文件过期 (文件日期: {file_date}, 最近交易日: {last_trading_day})")
+                    # 如果今天是交易日但还没收盘，不下载
+                    if is_trading_day(today) and not is_after_market_close():
+                        logger.info(f"文件过期 (文件日期: {file_date})，但今天尚未收盘，暂不下载")
+                        need_download = False
                     else:
-                        logger.info(f"文件过期 (文件日期: {file_date}, 最近交易日: {last_trading_day}, 今天非交易日)")
-                    need_download = True
+                        logger.info(f"文件过期 (文件日期: {file_date}, 最近交易日: {last_trading_day})")
+                        need_download = True
                 else:
-                    logger.info(f"文件是最新的 (文件日期: {file_date}, 最近交易日: {last_trading_day})")
+                    logger.info(f"文件是最新的 (文件日期: {file_date})")
             except Exception as e:
                 logger.warning(f"无法检查文件日期，准备重新下载: {e}")
                 need_download = True
@@ -166,20 +180,23 @@ class StdReader(ReaderBase):
             need_download = True
 
         if vipdoc is None or need_download:
-            # 优先使用 urllib 下载，失败时回退到 Selenium
-            logger.info("未找到本地文件或文件过期，开始下载...")
-            
-            try:
-                downloader = TdxSeleniumDownloader(self.tdxdir)
-                success = downloader.download(timeout=300)
+            # 如果今天是交易日但还没收盘，不下载
+            if is_trading_day(datetime.date.today()) and not is_after_market_close():
+                logger.info("今天是交易日但尚未收盘，暂不下载")
+            else:
+                logger.info("未找到本地文件或文件过期，开始下载...")
                 
-                if success:
-                    # 重新查找文件
-                    vipdoc = self.find_path(symbol=symbol, subdir='lday', suffix='day')
-                else:
-                    logger.error("下载失败")
-            except Exception as e:
-                logger.error(f"下载或解压失败: {e}")
+                try:
+                    downloader = TdxSeleniumDownloader(self.tdxdir)
+                    success = downloader.download(timeout=300)
+                    
+                    if success:
+                        # 重新查找文件
+                        vipdoc = self.find_path(symbol=symbol, subdir='lday', suffix='day')
+                    else:
+                        logger.error("下载失败")
+                except Exception as e:
+                    logger.error(f"下载或解压失败: {e}")
         
         result = reader.get_df(str(vipdoc)) if vipdoc else None
        
