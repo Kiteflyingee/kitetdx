@@ -180,10 +180,16 @@ class StdReader(ReaderBase):
             need_download = True
 
         if vipdoc is None or need_download:
-            # 如果今天是交易日但还没收盘，不下载
-            if is_trading_day(datetime.date.today()) and not is_after_market_close():
-                logger.info("今天是交易日但尚未收盘，暂不下载")
-            else:
+            # 本地没有文件时，无论是否收盘都要下载
+            # 只有本地有文件且过期时，才判断是否收盘
+            should_download = True
+            if vipdoc is not None and need_download:
+                # 有文件但过期，交易日未收盘不下载
+                if is_trading_day(datetime.date.today()) and not is_after_market_close():
+                    logger.info("文件过期，但今天尚未收盘，暂不下载")
+                    should_download = False
+            
+            if should_download:
                 logger.info("未找到本地文件或文件过期，开始下载...")
                 
                 try:
