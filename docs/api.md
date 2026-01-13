@@ -251,6 +251,22 @@
 
 **返回**: `pd.DataFrame`
 
+**列说明**:
+- `open`: 开盘价
+- `high`: 最高价
+- `low`: 最低价
+- `close`: 收盘价
+- `volume`: 成交量 (手)
+- `amount`: 成交额 (元)
+
+**示例**:
+```python
+                     open   high    low  close     volume       amount
+date
+2023-11-20  10.20  10.35  10.15  10.30  123456.0  1.234560e+08
+2023-11-21  10.30  10.40  10.25  10.38  110000.0  1.150000e+08
+```
+
 #### `minute(symbol, suffix=1, **kwargs)`
 
 读取分钟线数据。
@@ -261,6 +277,19 @@
 | `suffix` | int | `1` | 周期: `1` (1分钟), `5` (5分钟) |
 
 **返回**: `pd.DataFrame`
+
+**列说明**:
+- `open`, `high`, `low`, `close`
+- `vol`: 成交量
+- `amount`: 成交额
+
+**示例**:
+```python
+                       open   high    low  close      vol      amount
+datetime
+2023-11-21 09:30:00  10.30  10.32  10.29  10.31  1000.00  1031000.0
+2023-11-21 09:31:00  10.31  10.33  10.30  10.32   800.00   825600.0
+```
 
 #### `fzline(symbol)`
 
@@ -273,9 +302,21 @@
 | 参数 | 类型 | 默认值 | 说明 |
 | :--- | :--- | :--- | :--- |
 | `symbol` | str | - | 股票代码 |
-| `method` | str | `'qfq'` | 复权方式 |
+| `method` | str | `'qfq'` | 复权方式 (用于缓存文件名) |
 
 **返回**: `pd.DataFrame`
+
+**列说明**:
+- `date`: 除权日期 (Index)
+- `factor`: 复权因子
+
+**示例**:
+```python
+            factor
+date
+2022-05-20   1.05
+2023-06-15   1.12
+```
 
 ---
 
@@ -290,6 +331,7 @@
 | `concept_type` | str | `None` | 筛选类型: `'GN'` (概念), `'FG'` (风格), `'ZS'` (指数) |
 
 **返回**: `pd.DataFrame`
+
 **列说明**:
 - `ID`: 序号
 - `concept_type`: 类型
@@ -297,6 +339,14 @@
 - `concept_code`: 板块代码
 - `stock_code`: 股票代码
 - `stock_name`: 股票名称
+
+**示例**:
+```python
+   ID concept_type concept_name concept_code stock_code stock_name
+0   1           GN         锂电池       880534     300750      宁德时代
+1   2           GN         锂电池       880534     002594      比亚迪
+2   3           FG         高价股       880801     600519      贵州茅台
+```
 
 ---
 
