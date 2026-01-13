@@ -1,160 +1,333 @@
-# API 参考
+# API 参考手册
+
+`kitetdx` 基于 `mootdx` 开发，提供了一套统一的金融数据获取接口。本手册详细说明了主要模块及其方法。
+
+## 目录
+
+- [Quotes (在线行情)](#quotes-在线行情)
+  - [初始化](#quotes-初始化)
+  - [K线数据](#quotes-k线数据)
+  - [分时数据](#quotes-分时数据)
+  - [分笔成交](#quotes-分笔成交)
+  - [财务与除权](#quotes-财务与除权)
+  - [市场列表](#quotes-市场列表)
+- [Reader (离线读取)](#reader-离线读取)
+  - [初始化](#reader-初始化)
+  - [数据读取](#reader-数据读取)
+  - [板块数据](#reader-板块数据)
+- [Affair (财务文件)](#affair-财务文件)
+
+---
 
 ## Quotes (在线行情)
 
-`kitetdx.Quotes` 封装了 `mootdx` 的行情接口，提供实时和历史行情数据。
+用于连接通达信服务器，获取实时或历史行情数据。
 
-| 注：在线行情不稳定，有时服务器无反馈。
+> **注意**: 在线接口依赖于第三方服务器，连接稳定性可能有所波动。
 
-### 工厂方法
+### Quotes 初始化
 
-```python
-Quotes.factory(market='std', **kwargs)
-```
-- `market`: 'std' (标准市场), 'ext' (扩展市场)
-- `multithread`: 是否开启多线程 (默认 True)
-- `heartbeat`: 是否开启心跳检测 (默认 True)
-- `bestip`: 是否自动选择最优 IP (默认 True)
-- `timeout`: 超时时间 (默认 15s)
+#### `Quotes.factory(market='std', **kwargs)`
 
-### 常量
+创建行情客户端实例。
 
-MARKET_SZ = 0  # 深市
-MARKET_SH = 1  # 沪市
-MARKET_BJ = 2  # 北交
+| 参数 | 类型 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- |
+| `market` | str | `'std'` | 市场类型：`'std'` (标准市场), `'ext'` (扩展市场) |
+| `multithread` | bool | `True` | 是否开启多线程 |
+| `heartbeat` | bool | `True` | 是否开启心跳检测 |
+| `bestip` | bool | `True` | 是否自动选择最优 IP |
+| `timeout` | int | `15` | 连接超时时间 (秒) |
 
-### 方法列表
+**返回**: `Quotes` 对象实例
 
-#### `bars(symbol, frequency=9, start=0, offset=800)`
-获取实时日K线数据。
-- `symbol`: 股票代码 (str)
-- `frequency`: 数据频次 (9=日线, 0=5分钟, 1=15分钟, 2=30分钟, 3=1小时, 4=日线, 5=周线, 6=月线, 7=1分钟, 8=1分钟K线, 10=季线, 11=年线)
-- `start`: 开始位置 (int)
-- `offset`: 每次获取条数 (int)
-- **返回**: `pd.DataFrame`
+---
 
-#### `index_bars(symbol, frequency=9, start=0, offset=800)`
-获取指数K线数据。参数同 `bars`。
+### Quotes K线数据
 
-#### `minute(symbol)`
-获取实时分时数据。
-- `symbol`: 股票代码
-- **返回**: `pd.DataFrame`
+#### `bars(symbol, frequency=9, start=0, offset=800, **kwargs)`
 
-#### `minutes(symbol, date)`
-获取历史分时数据。
-- `symbol`: 股票代码
-- `date`: 日期 (str, e.g., '20191023')
-- **返回**: `pd.DataFrame`
+获取实时 K 线数据（包含指数）。
 
-#### `transaction(symbol, start, offset)`
-查询分笔成交。
-- `symbol`: 股票代码
-- `start`: 起始位置
-- `offset`: 结束位置
-- **返回**: `pd.DataFrame`
+| 参数 | 类型 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- |
+| `symbol` | str | `'000001'` | 股票代码 |
+| `frequency` | int | `9` | K线周期代码 (见下方说明) |
+| `start` | int | `0` | 起始位置 (0 为最新一条) |
+| `offset` | int | `800` | 获取数量 (最大 800) |
 
-#### `transactions(symbol, start, offset, date)`
-查询历史分笔成交。
-- `date`: 日期 (str, e.g., '20170209')
+> **Frequency 代码表**:
+> - `0`: 5分钟
+> - `1`: 15分钟
+> - `2`: 30分钟
+> - `3`: 1小时
+> - `4`: 日线
+> - `5`: 周线
+> - `6`: 月线
+> - `7`: 1分钟
+> - `8`: 1分钟K线
+> - `9`: 日线
+> - `10`: 季线
+> - `11`: 年线
 
-#### `F10(symbol, name)`
-读取公司 F10 信息。
-- `symbol`: 股票代码
-- `name`: 栏目名称 (可选)
-- **返回**: `pd.DataFrame` 或 `dict`
+**返回**: `pd.DataFrame`
 
-#### `finance(symbol)`
-读取财务信息。
-- `symbol`: 股票代码
-- **返回**: `pd.DataFrame`
+#### `index_bars(symbol, frequency=9, start=0, offset=800, **kwargs)`
 
-#### `xdxr(symbol)`
-读取除权除息信息。
-- `symbol`: 股票代码
-- **返回**: `pd.DataFrame`
+获取指数 K 线数据。参数与 `bars` 相同。
 
-#### `k(symbol, begin=None, end=None)`
-读取K线信息。
-- `symbol`: 股票代码 (str)
-- `begin`: 开始日期 (str, 可选, e.g., '20230101')
-- `end`: 截止日期 (str, 可选, e.g., '20231231')
-- **返回**: `pd.DataFrame` 或 `None`
+#### `k(symbol, begin=None, end=None, **kwargs)`
+
+获取历史 K 线数据（按日期范围）。
+
+| 参数 | 类型 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- |
+| `symbol` | str | - | 股票代码 |
+| `begin` | str | `None` | 开始日期 (如 `'20230101'`) |
+| `end` | str | `None` | 结束日期 (如 `'20231231'`) |
+
+**返回**: `pd.DataFrame`
 
 #### `ohlc(**kwargs)`
-读取K线信息 (k 方法的别名)。
-- 参数同 `k` 方法
-- **返回**: `pd.DataFrame` 或 `None`
+
+`k` 方法的别名。
+
+---
+
+### Quotes 分时数据
+
+#### `minute(symbol, **kwargs)`
+
+获取实时分时图数据。
+
+| 参数 | 类型 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- |
+| `symbol` | str | - | 股票代码 |
+
+**返回**: `pd.DataFrame`
+
+#### `minutes(symbol, date, **kwargs)`
+
+获取历史分时数据。
+
+| 参数 | 类型 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- |
+| `symbol` | str | - | 股票代码 |
+| `date` | str | `'20191023'` | 查询日期 (如 `'20230101'`) |
+
+**返回**: `pd.DataFrame`
+
+---
+
+### Quotes 分笔成交
+
+#### `transaction(symbol, start=0, offset=800, **kwargs)`
+
+获取实时分笔成交。
+
+| 参数 | 类型 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- |
+| `symbol` | str | - | 股票代码 |
+| `start` | int | `0` | 起始位置 |
+| `offset` | int | `800` | 获取数量 |
+
+**返回**: `pd.DataFrame`
+
+#### `transactions(symbol, start=0, offset=800, date='20170209', **kwargs)`
+
+获取历史分笔成交。
+
+| 参数 | 类型 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- |
+| `symbol` | str | - | 股票代码 |
+| `start` | int | `0` | 起始位置 |
+| `offset` | int | `800` | 获取数量 |
+| `date` | str | `'20170209'` | 查询日期 |
+
+**返回**: `pd.DataFrame`
+
+---
+
+### Quotes 财务与除权
+
+#### `F10(symbol, name='')`
+
+读取公司 F10 信息。
+
+| 参数 | 类型 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- |
+| `symbol` | str | - | 股票代码 |
+| `name` | str | `''` | 栏目名称 (如 "最新提示", "公司概况"等) |
+
+**返回**: `pd.DataFrame` 或 `dict`
+
+#### `finance(symbol, **kwargs)`
+
+读取财务信息。
+
+| 参数 | 类型 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- |
+| `symbol` | str | `'000001'` | 股票代码 |
+
+**返回**: `pd.DataFrame`
+
+#### `xdxr(symbol, **kwargs)`
+
+读取除权除息信息。优先从新浪接口获取复权因子以提高准确性。
+
+| 参数 | 类型 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- |
+| `symbol` | str | - | 股票代码 |
+| `method` | str | `'qfq'` | 复权方式: `'qfq'` (前复权), `'hfq'` (后复权) |
+
+**返回**: `pd.DataFrame` (包含 `date`, `factor` 等列)
+
+---
+
+### Quotes 市场列表
 
 #### `stock_count(market=MARKET_SH)`
+
 获取市场股票数量。
-- `market`: 股票市场代码 (1 = 上海, 0 = 深圳, 2 = 北京)
-- **返回**: `int`
+
+| 参数 | 类型 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- |
+| `market` | int | `1` | 市场代码: `1` (沪), `0` (深), `2` (北) |
+
+**返回**: `int`
 
 #### `stocks(market=MARKET_SH)`
-获取股票列表。
-- `market`: 股票市场代码 (1 = 上海, 0 = 深圳, 2 = 北京)
-- **返回**: `pd.DataFrame`
+
+获取指定市场的股票列表。
+
+**返回**: `pd.DataFrame`
 
 #### `stock_all()`
-获取所有股票列表（包含沪深两市）。
-- **返回**: `pd.DataFrame`
 
-#### `block(tofile='block.dat')`
-获取证券板块信息 (在线)。
-- `tofile`: 保存文件名
+获取所有市场的股票列表。
+
+**返回**: `pd.DataFrame`
+
+#### `block(tofile='block.dat', **kwargs)`
+
+获取证券板块信息。
+
+| 参数 | 类型 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- |
+| `tofile` | str | `'block.dat'` | 保存文件名 |
+
+**返回**: `pd.DataFrame`
+
+---
 
 ## Reader (离线读取)
 
-`kitetdx.Reader` 提供了读取本地通达信数据的功能，特别增强了板块数据的解析。
+用于直接读取本地通达信安装目录下的数据文件（`.day`, `.lc1`, `.lc5` 等）。
 
-### 工厂方法
+### Reader 初始化
 
-```python
-Reader.factory(market='std', tdxdir='C:/new_tdx')
-```
-- `tdxdir`: 通达信安装目录
+#### `Reader.factory(market='std', **kwargs)`
 
-### 方法列表
+创建 Reader 实例。
 
-#### `daily(symbol)`
-读取日线数据。
-- `symbol`: 股票代码
-- **返回**: `pd.DataFrame`
+| 参数 | 类型 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- |
+| `market` | str | `'std'` | 市场类型 |
+| `tdxdir` | str | `'C:/new_tdx'` | 通达信安装目录 (必须指定) |
 
-#### `minute(symbol, suffix=1)`
+**返回**: `Reader` 对象实例
+
+---
+
+### Reader 数据读取
+
+#### `daily(symbol, **kwargs)`
+
+读取日线数据。自动判断并下载缺失数据。
+
+| 参数 | 类型 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- |
+| `symbol` | str | - | 股票代码 |
+
+**返回**: `pd.DataFrame`
+
+#### `minute(symbol, suffix=1, **kwargs)`
+
 读取分钟线数据。
-- `symbol`: 股票代码
-- `suffix`: 1 (1分钟) 或 5 (5分钟)
+
+| 参数 | 类型 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- |
+| `symbol` | str | - | 股票代码 |
+| `suffix` | int | `1` | 周期: `1` (1分钟), `5` (5分钟) |
+
+**返回**: `pd.DataFrame`
 
 #### `fzline(symbol)`
-读取5分钟线数据 (Alias for minute(suffix=5))。
+
+读取 5 分钟线数据。(`minute(suffix=5)` 的别名)
+
+#### `xdxr(symbol, **kwargs)`
+
+读取除权除息信息（调用在线接口辅助）。
+
+| 参数 | 类型 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- |
+| `symbol` | str | - | 股票代码 |
+| `method` | str | `'qfq'` | 复权方式 |
+
+**返回**: `pd.DataFrame`
+
+---
+
+### Reader 板块数据
 
 #### `block(concept_type=None)`
-读取板块数据。
-- `concept_type`: 可选，筛选板块类型 ('GN', 'FG', 'ZS')
-- **返回**: `pd.DataFrame`
-- **列名**: `ID`, `concept_type`, `concept_name`, `concept_code`, `stock_code`, `stock_name`
 
+读取通达信本地板块与概念数据。
 
-## Affair (财务数据)
+| 参数 | 类型 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- |
+| `concept_type` | str | `None` | 筛选类型: `'GN'` (概念), `'FG'` (风格), `'ZS'` (指数) |
 
-`kitetdx.Affair` 提供了财务数据的下载和解析功能。
+**返回**: `pd.DataFrame`
+**列说明**:
+- `ID`: 序号
+- `concept_type`: 类型
+- `concept_name`: 板块名称
+- `concept_code`: 板块代码
+- `stock_code`: 股票代码
+- `stock_name`: 股票名称
 
-### 方法列表
+---
+
+## Affair (财务文件)
+
+用于下载和解析通达信专业财务数据文件。
 
 #### `files()`
+
 获取远程财务文件列表。
-- **返回**: `list`
+
+**返回**: `list`
 
 #### `fetch(downdir='tmp', filename='')`
+
 下载财务文件。
-- `downdir`: 下载目录
-- `filename`: 指定文件名 (可选)
-- **返回**: `bool`
+
+| 参数 | 类型 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- |
+| `downdir` | str | `'tmp'` | 本地下载目录 |
+| `filename` | str | `''` | 指定文件名 (留空则下载所有) |
+
+**返回**: `bool`
 
 #### `parse(downdir='tmp', filename='')`
+
 解析本地财务文件。
-- `downdir`: 文件所在目录
-- `filename`: 指定文件名 (可选)
-- **返回**: `pd.DataFrame`
+
+| 参数 | 类型 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- |
+| `downdir` | str | `'tmp'` | 文件所在目录 |
+| `filename` | str | `''` | 指定文件名 (留空则解析目录所有) |
+
+**返回**: `pd.DataFrame`
