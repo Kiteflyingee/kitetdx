@@ -248,6 +248,21 @@
 | 参数 | 类型 | 默认值 | 说明 |
 | :--- | :--- | :--- | :--- |
 | `symbol` | str | - | 股票代码 |
+| `adjust` | str | `None` | 复权方式: `'qfq'` (前复权), `'hfq'` (后复权) |
+
+**调用示例**:
+```python
+reader = Reader.factory(tdxdir='C:/new_tdx')
+
+# 读取原始数据
+df = reader.daily('600036')
+
+# 读取前复权数据
+df_qfq = reader.daily('600036', adjust='qfq')
+
+# 读取后复权数据
+df_hfq = reader.daily('600036', adjust='hfq')
+```
 
 **返回**: `pd.DataFrame`
 
@@ -259,7 +274,7 @@
 - `volume`: 成交量 (手)
 - `amount`: 成交额 (元)
 
-**示例**:
+**返回示例**:
 ```python
                      open   high    low  close     volume       amount
 date
@@ -276,6 +291,14 @@ date
 | `symbol` | str | - | 股票代码 |
 | `suffix` | int | `1` | 周期: `1` (1分钟), `5` (5分钟) |
 
+**调用示例**:
+```python
+# 读取1分钟线
+df = reader.minute('600036', suffix=1)
+# 读取5分钟线
+df_5 = reader.minute('600036', suffix=5)
+```
+
 **返回**: `pd.DataFrame`
 
 **列说明**:
@@ -283,7 +306,7 @@ date
 - `vol`: 成交量
 - `amount`: 成交额
 
-**示例**:
+**返回示例**:
 ```python
                        open   high    low  close      vol      amount
 datetime
@@ -304,13 +327,18 @@ datetime
 | `symbol` | str | - | 股票代码 |
 | `method` | str | `'qfq'` | 复权方式 (用于缓存文件名) |
 
+**调用示例**:
+```python
+df = reader.xdxr('600036')
+```
+
 **返回**: `pd.DataFrame`
 
 **列说明**:
 - `date`: 除权日期 (Index)
 - `factor`: 复权因子
 
-**示例**:
+**返回示例**:
 ```python
             factor
 date
@@ -330,6 +358,14 @@ date
 | :--- | :--- | :--- | :--- |
 | `concept_type` | str | `None` | 筛选类型: `'GN'` (概念), `'FG'` (风格), `'ZS'` (指数) |
 
+**调用示例**:
+```python
+# 读取所有概念
+blocks = reader.block(concept_type='GN')
+# 筛选出锂电池板块的股票
+lithium_stocks = blocks[blocks['concept_name'] == '锂电池']
+```
+
 **返回**: `pd.DataFrame`
 
 **列说明**:
@@ -340,7 +376,7 @@ date
 - `stock_code`: 股票代码
 - `stock_name`: 股票名称
 
-**示例**:
+**返回示例**:
 ```python
    ID concept_type concept_name concept_code stock_code stock_name
 0   1           GN         锂电池       880534     300750      宁德时代
