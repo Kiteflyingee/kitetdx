@@ -117,9 +117,16 @@ Reader.factory(market='std', tdxdir='C:/new_tdx')
 
 ### 方法列表
 
+#### `update_data()`
+手动检查并更新本地数据。
+- 检查本地 `lday` 目录时间戳。
+- 如果数据过期（早于最近交易日）且当前未收盘，或者目录不存在，则通过 Selenium 下载最新数据。
+- 建议在每日收盘后或首次使用前调用。
+
 #### `daily(symbol)`
 读取日线数据。
 - `symbol`: 股票代码
+- **注意**: 该方法不再自动检查更新。如需获取最新数据，请先调用 `update_data()`。
 - **返回**: `pd.DataFrame`
 
 #### `minute(symbol, suffix=1)`

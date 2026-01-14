@@ -225,6 +225,14 @@ class TdxSeleniumDownloader:
                 for member in file_list:
                     # 处理路径分隔符和安全检查
                     member.filename = member.filename.replace('\\', '/').lstrip('/')
+                    
+                    # 修复：如果有 vipdoc 前缀，去掉它，避免形成 vipdoc/vipdoc/sh/...
+                    if member.filename.lower().startswith('vipdoc/'):
+                        member.filename = member.filename[7:]
+                        
+                    if not member.filename:  # 如果只是 vipdoc/ 目录本身，跳过
+                        continue
+
                     target_path = self.vipdoc_dir / member.filename
                     
                     # 安全检查：确保解压路径在 vipdoc_dir 内

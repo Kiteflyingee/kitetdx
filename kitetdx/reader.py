@@ -141,17 +141,11 @@ class ReaderBase(ABC):
 class StdReader(ReaderBase):
     """股票市场"""
 
-    def daily(self, symbol=None, **kwargs):
+    def update_data(self):
         """
-        获取日线数据
-
-        :param symbol: 证券代码
-        :return: pd.dataFrame or None
+        手动检查并更新数据
         """
-        symbol = Path(symbol).stem
-        reader = MooTdxDailyBarReader()
-        
-        # 检查 lday 目录的更新时间，而不是单个股票文件
+        # 检查 lday 目录的更新时间
         need_download = False
         lday_dir = Path(self.tdxdir) / 'vipdoc' / 'sh' / 'lday'
         
@@ -198,10 +192,29 @@ class StdReader(ReaderBase):
                     downloader = TdxSeleniumDownloader(self.tdxdir)
                     success = downloader.download(timeout=300)
                     
-                    if not success:
+                    if success:
+                        logger.info("数据更新完成")
+                        print("数据更新完成")
+                    else:
                         logger.error("下载失败")
                 except Exception as e:
                     logger.error(f"下载或解压失败: {e}")
+            else:
+                logger.info("暂无需下载")
+                print("暂无需下载")
+        else:
+            logger.info("数据已是最新，无需下载")
+            print("数据已是最新，无需下载")
+
+    def daily(self, symbol=None, **kwargs):
+        """
+        获取日线数据
+
+        :param symbol: 证券代码
+        :return: pd.dataFrame or None
+        """
+        symbol = Path(symbol).stem
+        reader = MooTdxDailyBarReader(vipdoc_path=Path(self.tdxdir) / 'vipdoc')
         
         # 查找股票文件
         vipdoc = self.find_path(symbol=symbol, subdir='lday', suffix='day')
@@ -380,7 +393,7 @@ class ExtReader(ReaderBase):
 
     def __init__(self, tdxdir=None):
         super(ExtReader, self).__init__(tdxdir)
-        self.reader = TdxExHqDailyBarReader()
+        self.reader = TdxExHqDailyBarReader(vipdoc_path=Path(tdxdir) / 'vipdoc')
 
     def daily(self, symbol=None):
         """
