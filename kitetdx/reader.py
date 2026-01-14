@@ -231,6 +231,24 @@ class StdReader(ReaderBase):
        
         return to_data(result, symbol=symbol, **kwargs)
 
+    def xdxr(self, symbol='', **kwargs):
+        """
+        读取除权除息信息
+        
+        :param symbol: 股票代码
+        :return: pd.DataFrame or None
+        """
+        from .adjust import fetch_fq_factor
+        
+        # 尝试使用sina的除权信息
+        method = kwargs.get('method', 'qfq')
+        df = fetch_fq_factor(symbol=symbol, method=method)
+        
+        if df is not None:
+            return df
+            
+        return None
+
     def minute(self, symbol=None, suffix=1, **kwargs):  # noqa
         """
         获取1, 5分钟线
