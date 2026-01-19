@@ -26,14 +26,11 @@ jobs:
       - name: Install Poetry
         run: pipx install poetry==2.3.0
 
-      # 这里的配置是为了把依赖安装到 setup-python 设置的系统 Python 中
-      # 而不是创建新的 venv。这是 CI 环境的常用做法。
-      - name: Configure Poetry
-        run: poetry config virtualenvs.create false
-
+      # ✅ 直接安装依赖（Poetry 会自动创建一个干净的虚拟环境）
       - name: Install dependencies
         run: poetry install --no-interaction --no-root
 
+      # ✅ Build 和 Publish 会自动使用上面创建的环境
       - name: Build package
         run: poetry build
 
