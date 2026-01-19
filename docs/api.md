@@ -252,6 +252,8 @@
 
 **调用示例**:
 ```python
+from kitetdx import Reader
+
 reader = Reader.factory(tdxdir='C:/new_tdx')
 
 # 读取原始数据

@@ -218,49 +218,28 @@ def adjust_price(df: pd.DataFrame, symbol: str, method: str = 'qfq') -> pd.DataF
             logger.warning("数据中没有日期信息，无法进行复权")
             return df
     
-    # 合并复权因子
+    
+    # 必须先排序，因为 fetch_fq_factor 返回的是降序，而 reindex 的 ffill 需要升序索引
     df_copy = df_copy.sort_index()
     factor_df = factor_df.sort_index()
     
-    # 只取数据范围内的因子
-    start_date = df_copy.index.min()
-    end_date = df_copy.index.max()
+    # 使用 reindex 方式对齐因子，确保输入数据即使只是子集且不包含除权日也能正确获取因子
+    # reindex(method='ffill') 会将 factor_df 中的因子按日期向前填充到 df_copy 的每一个日期上
+    factors = factor_df.reindex(df_copy.index, method='ffill')['factor'].fillna(1.0)
     
-    df_merged = pd.merge(
-        df_copy, 
-        factor_df, 
-        left_index=True, 
-        right_index=True, 
-        how='left'
-    )
-    
-    # 填充缺失的因子
-    if method == 'qfq':
-        # 前复权：向后填充
-        df_merged['factor'] = df_merged['factor'].bfill()
-    else:
-        # 后复权：向前填充
-        df_merged['factor'] = df_merged['factor'].ffill()
-    
-    # 如果还有缺失，填充为1
-    df_merged['factor'] = df_merged['factor'].fillna(1.0)
-    
-    # 应用复权因子
+    # 应用复权因子到各价格列
     price_cols = ['open', 'high', 'low', 'close']
     
     for col in price_cols:
-        if col in df_merged.columns:
+        if col in df_copy.columns:
             if method == 'hfq':
                 # 后复权：价格 * 因子
-                df_merged[col] = df_merged[col] * df_merged['factor']
+                df_copy[col] = df_copy[col] * factors
             else:
                 # 前复权：价格 / 因子
-                df_merged[col] = df_merged[col] / df_merged['factor']
+                df_copy[col] = df_copy[col] / factors
     
-    # 删除因子列
-    df_merged = df_merged.drop('factor', axis=1)
-    
-    return df_merged
+    return df_copy
 
 
 def to_adjust(df: pd.DataFrame, symbol: str, adjust: str = None) -> pd.DataFrame:

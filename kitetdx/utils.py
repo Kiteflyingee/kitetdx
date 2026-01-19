@@ -1,36 +1,24 @@
+import logging
 import pandas as pd
 from pandas import DataFrame
-from mootdx.logger import logger
 
 
-def to_data(v, first=True, **kwargs):
+logger = logging.getLogger(__name__)
+
+
+def to_data(v, **kwargs):
     """
-    数值转换为 pd.DataFrame，优先使用 mootdx 的方法，失败时回退到自定义实现
+    数值转换为 pd.DataFrame，并支持复权处理
     
-    :param v: mixed
-    :return: pd.DataFrame
-    """
-    # 优先尝试使用 mootdx 的 to_data
-    if first:
-        return _to_data_fallback(v, **kwargs)
-    try:
-        from mootdx.utils import to_data as mootdx_to_data
-        return mootdx_to_data(v, **kwargs)
-    except Exception as e:
-        logger.warning(f"mootdx to_data 失败，使用自定义实现: {e}")
-        return _to_data_fallback(v, **kwargs)
-
-
-def _to_data_fallback(v, **kwargs):
-    """
-    自定义的数值转换方法（备用）
-    
-    :param v: mixed
+    :param v: 输入数据，支持 DataFrame、list、dict
+    :param symbol: 股票代码（复权时需要）
+    :param adjust: 复权方式，'qfq'/'01' 前复权，'hfq'/'02' 后复权
     :return: pd.DataFrame
     """
     symbol = kwargs.get('symbol')
     adjust = kwargs.get('adjust', '')
     
+    # 标准化复权参数
     if adjust:
         adjust = adjust.lower()
         if adjust in ['01', 'qfq', 'before']:
@@ -40,33 +28,32 @@ def _to_data_fallback(v, **kwargs):
         else:
             adjust = None
 
-    # 空值
+    # 空值处理
     if not isinstance(v, DataFrame) and not v:
         return pd.DataFrame(data=None)
 
-    # DataFrame
+    # 转换为 DataFrame
     if isinstance(v, DataFrame):
         result = v
-    # 列表
     elif isinstance(v, list):
-        result = pd.DataFrame(data=v) if len(v) else None
-    # 字典
+        result = pd.DataFrame(data=v) if len(v) else pd.DataFrame()
     elif isinstance(v, dict):
         result = pd.DataFrame(data=[v])
-    # 空值
     else:
         result = pd.DataFrame(data=[])
 
+    # 设置日期索引
     if 'datetime' in result.columns:
         result.index = pd.to_datetime(result.datetime)
 
     if 'date' in result.columns:
         result.index = pd.to_datetime(result.date)
 
+    # 统一成交量列名
     if 'vol' in result.columns:
         result['volume'] = result.vol
 
-    # 使用自定义复权方法
+    # 复权处理
     if adjust and adjust in ['qfq', 'hfq'] and symbol:
         from kitetdx.adjust import to_adjust
         result = to_adjust(result, symbol=symbol, adjust=adjust)
