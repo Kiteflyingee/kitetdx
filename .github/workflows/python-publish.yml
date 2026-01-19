@@ -3,38 +3,41 @@ name: Publish to PyPI
 on:
   release:
     types: [published]
-  # 或者 push 到特定分支
-  # push:
-  #   branches: [main]
+  # 也可以手动触发方便测试
+  workflow_dispatch:
 
 jobs:
   publish:
     runs-on: ubuntu-latest
-    environment: pypi  
+    environment: pypi
     
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.9'
-    
-    - name: Install Poetry
-      run: |
-        curl -sSL https://install.python-poetry.org | python3 -
-        echo "$HOME/.local/bin" >> $GITHUB_PATH
-    
-    - name: Configure Poetry
-      run: poetry config virtualenvs.create false
-    
-    - name: Install dependencies
-      run: poetry install --no-interaction --no-root
-    
-    - name: Build package
-      run: poetry build
-    
-    - name: Publish to PyPI
-      run: poetry publish
-      env:
-        POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_TOKEN }}
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      # ------------------------------------------------------------------
+      # 修复部分：使用 pipx 代替 curl 脚本
+      # pipx 预装在 GitHub Actions 中，更稳定，且自动处理 PATH 问题
+      # ------------------------------------------------------------------
+      - name: Install Poetry
+        run: pipx install poetry==2.3.0
+
+      # 这里的配置是为了把依赖安装到 setup-python 设置的系统 Python 中
+      # 而不是创建新的 venv。这是 CI 环境的常用做法。
+      - name: Configure Poetry
+        run: poetry config virtualenvs.create false
+
+      - name: Install dependencies
+        run: poetry install --no-interaction --no-root
+
+      - name: Build package
+        run: poetry build
+
+      - name: Publish to PyPI
+        run: poetry publish
+        env:
+          POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_TOKEN }}
