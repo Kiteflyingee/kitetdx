@@ -175,26 +175,28 @@ def fetch_fq_factor(symbol: str, method: str = 'qfq', timeout: int = 10) -> Opti
 
 
 
-def adjust_price(df: pd.DataFrame, symbol: str, method: str = 'qfq') -> pd.DataFrame:
+def to_adjust(df: pd.DataFrame, symbol: str, adjust: str = None) -> pd.DataFrame:
     """
     对股票数据进行复权处理
+    
+    使用新浪复权因子对股票数据进行前复权或后复权处理。
     
     Args:
         df: 原始股票数据，需要包含 date, open, high, low, close 列
         symbol: 股票代码
-        method: 复权方式，'qfq' 前复权，'hfq' 后复权，None 或其他值不复权
+        adjust: 复权方式，'qfq' 前复权，'hfq' 后复权，None 不复权
         
     Returns:
         复权后的DataFrame
     """
-    if method not in ('qfq', 'hfq'):
+    if adjust not in ('qfq', 'hfq'):
         return df
     
     if df is None or df.empty:
         return df
     
     # 获取复权因子
-    factor_df = fetch_fq_factor(symbol, method)
+    factor_df = fetch_fq_factor(symbol, adjust)
     
     if factor_df is None or factor_df.empty:
         logger.warning(f"无法获取 {symbol} 的复权因子，返回原始数据")
@@ -232,7 +234,7 @@ def adjust_price(df: pd.DataFrame, symbol: str, method: str = 'qfq') -> pd.DataF
     
     for col in price_cols:
         if col in df_copy.columns:
-            if method == 'hfq':
+            if adjust == 'hfq':
                 # 后复权：价格 * 因子
                 df_copy[col] = df_copy[col] * factors
             else:
@@ -240,29 +242,3 @@ def adjust_price(df: pd.DataFrame, symbol: str, method: str = 'qfq') -> pd.DataF
                 df_copy[col] = df_copy[col] / factors
     
     return df_copy
-
-
-def to_adjust(df: pd.DataFrame, symbol: str, adjust: str = None) -> pd.DataFrame:
-    """
-    复权接口（兼容mootdx的接口）
-    
-    Args:
-        df: 原始股票数据
-        symbol: 股票代码
-        adjust: 复权方式，'qfq'/'01' 前复权，'hfq'/'02' 后复权
-        
-    Returns:
-        复权后的DataFrame
-    """
-    if adjust is None:
-        return df
-    
-    # 兼容mootdx的参数格式
-    if adjust in ('01', 'qfq'):
-        method = 'qfq'
-    elif adjust in ('02', 'hfq'):
-        method = 'hfq'
-    else:
-        return df
-    
-    return adjust_price(df, symbol, method)
