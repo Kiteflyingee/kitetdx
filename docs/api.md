@@ -399,13 +399,36 @@ lithium_stocks = blocks[blocks['concept_name'] == '锂电池']
 
 ## Affair (财务文件)
 
-用于下载和解析通达信专业财务数据文件。
+用于下载和解析通达信专业财务数据文件，包含上市公司季报、中报、年报等财务指标。
+
+### 文件命名规则
+
+| 文件名格式 | 说明 |
+| :--- | :--- |
+| `gpcw20231231.zip` | 2023年年报 (12月31日) |
+| `gpcw20230930.zip` | 2023年三季报 (9月30日) |
+| `gpcw20230630.zip` | 2023年中报 (6月30日) |
+| `gpcw20230331.zip` | 2023年一季报 (3月31日) |
+
+---
 
 #### `files()`
 
 获取远程财务文件列表。
 
-**返回**: `list`
+**调用示例**:
+```python
+from kitetdx import Affair
+
+# 获取可用的财务文件列表
+files = Affair.files()
+print(files[:3])
+# [{'filename': 'gpcw20231231.zip', 'hash': '...', 'filesize': 5648421}, ...]
+```
+
+**返回**: `list[dict]` - 包含 `filename`, `hash`, `filesize` 字段
+
+---
 
 #### `fetch(downdir='tmp', filename='')`
 
@@ -413,18 +436,55 @@ lithium_stocks = blocks[blocks['concept_name'] == '锂电池']
 
 | 参数 | 类型 | 默认值 | 说明 |
 | :--- | :--- | :--- | :--- |
-| `downdir` | str | `'tmp'` | 本地下载目录 |
-| `filename` | str | `''` | 指定文件名 (留空则下载所有) |
+| `downdir` | str | `'tmp'` | 本地下载目录 (不存在会自动创建) |
+| `filename` | str | `''` | 指定文件名 (留空则下载所有文件) |
+
+**调用示例**:
+```python
+# 下载2023年年报数据
+Affair.fetch(downdir='财务数据', filename='gpcw20231231.zip')
+```
 
 **返回**: `bool`
 
+---
+
 #### `parse(downdir='tmp', filename='')`
 
-解析本地财务文件。
+解析本地财务文件。如果文件不存在，会自动调用 `fetch()` 下载。
 
 | 参数 | 类型 | 默认值 | 说明 |
 | :--- | :--- | :--- | :--- |
 | `downdir` | str | `'tmp'` | 文件所在目录 |
-| `filename` | str | `''` | 指定文件名 (留空则解析目录所有) |
+| `filename` | str | - | 文件名 (**必填**) |
+
+**调用示例**:
+```python
+# 解析2023年年报
+df = Affair.parse(downdir='财务数据', filename='gpcw20231231.zip')
+print(df.head())
+```
 
 **返回**: `pd.DataFrame`
+
+**主要列说明** (共 585 列):
+
+| 列名 | 说明 |
+| :--- | :--- |
+| `code` | 股票代码 (Index) |
+| `report_date` | 报告日期 |
+| `基本每股收益` | 基本每股收益 (元) |
+| `扣除非经常性损益每股收益` | 扣非每股收益 (元) |
+| `每股净资产` | 每股净资产 (元) |
+| `净资产收益率` | ROE (%) |
+| ... | 更多财务指标 |
+
+**返回示例**:
+```python
+        report_date  基本每股收益  扣除非经常性损益每股收益  ...
+code                                              
+000001     20231231     2.25              2.25  ...
+000002     20231231     1.03              0.83  ...
+600036     20231231     5.28              5.12  ...
+```
+
