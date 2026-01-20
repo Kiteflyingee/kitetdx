@@ -1,6 +1,6 @@
 # Kitetdx
 
-**Kitetdx** 是一个基于 [mootdx](https://github.com/mootdx/mootdx) 的二次封装与扩展项目。它提供了一套统一且稳定的 API 用于访问金融数据，内置了定制化的 `Reader` 模块，并对 `Quotes` 进行了完整的封装。
+**Kitetdx** 是一个基于 [mootdx](https://github.com/mootdx/mootdx) 的二次封装与扩展项目。它提供了一套统一且稳定的 API 用于访问金融数据，**重点增强了离线读取 (Reader) 模块**，内置了深度定制化的逻辑，并对 `Quotes` 进行了完整的封装。
 
 
 ## 功能特性
