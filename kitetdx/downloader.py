@@ -127,9 +127,18 @@ class TdxSeleniumDownloader:
             
             with httpx.stream("GET", self.target_url, headers=headers, timeout=timeout, follow_redirects=True) as response:
                 if response.status_code == 200:
+                    total_size = int(response.headers.get('content-length', 0))
+                    downloaded_size = 0
+                    
                     with open(target_file, "wb") as f:
                         for chunk in response.iter_bytes():
                             f.write(chunk)
+                            downloaded_size += len(chunk)
+                            
+                            # 每下载 10MB 打印一次日志
+                            if downloaded_size % (10 * 1024 * 1024) < len(chunk): 
+                                logger.info(f"正在下载... {downloaded_size / 1024 / 1024:.2f} MB / {total_size / 1024 / 1024:.2f} MB")
+                                
                     logger.info("直接下载成功！")
                     return self._unzip_file(target_file)
                 else:
