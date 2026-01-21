@@ -113,6 +113,31 @@ class TdxSeleniumDownloader:
             "3. 或者手动下载 chromedriver 放到 PATH 中\n"
             "4. 如果网络有问题，请检查代理设置"
         )
+
+    def _download_direct(self, timeout: int) -> bool:
+        """尝试直接通过 HTTP 下载文件"""
+        try:
+            import httpx
+            logger.info(f"尝试直接下载: {self.target_url}")
+            
+            target_file = self.save_dir / self.zip_filename
+            headers = {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+            }
+            
+            with httpx.stream("GET", self.target_url, headers=headers, timeout=timeout, follow_redirects=True) as response:
+                if response.status_code == 200:
+                    with open(target_file, "wb") as f:
+                        for chunk in response.iter_bytes():
+                            f.write(chunk)
+                    logger.info("直接下载成功！")
+                    return self._unzip_file(target_file)
+                else:
+                    logger.debug(f"直接下载失败，状态码: {response.status_code}")
+        except Exception as e:
+            logger.warning(f"直接下载尝试失败: {e}")
+            
+        return False
     
     def download(self, timeout: int = 300) -> bool:
         """
@@ -124,6 +149,12 @@ class TdxSeleniumDownloader:
         Returns:
             bool: 下载是否成功
         """
+        logger.info(f"下载目录已设置为: {self.save_dir}")
+        
+        # 优先尝试直接 HTTP 下载 (无需 Chrome)
+        if self._download_direct(timeout):
+            return True
+            
         # 延迟导入 Selenium 相关模块，避免未安装时影响其他功能
         try:
             from selenium import webdriver
@@ -131,13 +162,12 @@ class TdxSeleniumDownloader:
             from selenium.webdriver.chrome.service import Service
         except ImportError as e:
             logger.error(
-                f"Selenium 未安装，请先安装依赖: pip install selenium webdriver-manager\n"
+                f"Selenium 未安装，且直接下载失败。\n"
+                f"请先安装依赖: pip install selenium webdriver-manager\n"
                 f"错误信息: {e}"
             )
             return False
-        
-        logger.info(f"下载目录已设置为: {self.save_dir}")
-        
+            
         driver = None
         try:
             logger.info("启动浏览器...")
