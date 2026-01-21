@@ -7,6 +7,7 @@ __pycache__/
 *.so
 
 *.ipynb
+kitetdx.code-workspace
 
 # Distribution / packaging
 .pytest_cache/
@@ -71,3 +72,6 @@ target/
 vipdoc/*
 
 tdx
+
+data/*
+kitetdx-mcp/*

@@ -21,7 +21,7 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = "^3.8"
-httpx = "^0.25.0"
+httpx = ">=0.25.0"
 tenacity = "^8.1.0"
 tdxpy = "^0.2.5"
 tqdm = "*"
