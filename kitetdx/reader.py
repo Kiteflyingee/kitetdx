@@ -158,17 +158,23 @@ class StdReader(ReaderBase):
                 # 获取最近的交易日
                 last_trading_day = get_last_trading_day(today)
                 
-                # 如果目录日期早于最近的交易日，则需要下载
-                if dir_date < last_trading_day:
-                    # 如果今天是交易日但还没收盘，不下载
-                    if is_trading_day(today) and not is_after_market_close():
-                        logger.debug(f"数据目录过期 (目录日期: {dir_date})，但今天尚未收盘，暂不下载")
-                        need_download = False
-                    else:
-                        logger.info(f"数据目录过期 (目录日期: {dir_date}, 最近交易日: {last_trading_day})")
-                        need_download = True
+                # 定义必须满足的目标日期
+                if is_trading_day(today) and not is_after_market_close():
+                    # 如果是交易日且未收盘，我们需要至少有上个交易日的数据
+                    target_date = get_last_trading_day(today - datetime.timedelta(days=1))
+                    log_msg = "今天尚未收盘，检查是否落后于上个交易日"
                 else:
-                    logger.debug(f"数据目录是最新的 (目录日期: {dir_date})")
+                    # 如果已收盘或非交易日，我们需要有最新的交易日数据
+                    target_date = last_trading_day
+                    log_msg = "检查是否落后于最新交易日"
+
+                # 如果目录日期早于目标日期，则需要下载
+                if dir_date < target_date:
+                    logger.info(f"数据目录过期 (目录日期: {dir_date}, 目标日期: {target_date}) - {log_msg}")
+                    need_download = True
+                else:
+                    logger.debug(f"数据目录满足要求 (目录日期: {dir_date}, 目标日期: {target_date})")
+                    need_download = False
             except Exception as e:
                 logger.warning(f"无法检查目录日期，准备重新下载: {e}")
                 need_download = True
@@ -176,14 +182,9 @@ class StdReader(ReaderBase):
             need_download = True
 
         if need_download:
-            # 目录不存在时，无论是否收盘都要下载
-            # 只有目录存在且过期时，才判断是否收盘
             should_download = True
-            if lday_dir.exists():
-                # 目录存在但过期，交易日未收盘不下载
-                if is_trading_day(datetime.date.today()) and not is_after_market_close():
-                    logger.info("数据过期，但今天尚未收盘，暂不下载")
-                    should_download = False
+            # 旧逻辑删除：不再进行额外的 is_trading_day 判断来阻止下载
+            # 因为上面的逻辑已经很精细地控制了 need_download
             
             if should_download:
                 logger.info("未找到数据目录或数据过期，开始下载...")
