@@ -80,6 +80,15 @@ class Reader(object):
         return StdReader(**kwargs)
 
 
+@dataclass
+class Block:
+    concept_name: str
+    concept_code: str
+    concept_type: str
+    stocks: List[dict]
+
+
+
 class ReaderBase(ABC):
     # 默认通达信安装目录
     tdxdir = 'C:/new_tdx'
@@ -296,13 +305,35 @@ class StdReader(ReaderBase):
 
         return reader.search(name=name, group=group)
 
-    def block(self, concept_type=None):
+    def block(self, concept_type=None, return_df=False):
         """
         获取板块数据
         :param concept_type: 板块类型，可选值 'GN' (概念), 'FG' (风格), 'ZS' (指数)
-        :return: pd.DataFrame
+        :param return_df: 是否返回 DataFrame 格式，默认为 False (返回 Block 对象列表)
+        :return: list[Block] or pd.DataFrame
         """
-        return self.parse_concept_data(concept_type=concept_type)
+        df = self.parse_concept_data(concept_type=concept_type)
+        
+        if return_df:
+            return df
+            
+        if df.empty:
+            return []
+            
+        blocks = []
+        # 按板块分组
+        grouped = df.groupby(['concept_name', 'concept_code', 'concept_type'])
+        
+        for (name, code, ctype), group in grouped:
+            stocks = group[['stock_code', 'stock_name']].to_dict('records')
+            blocks.append(Block(
+                concept_name=name,
+                concept_code=code,
+                concept_type=ctype,
+                stocks=stocks
+            ))
+            
+        return blocks
 
     def parse_stock_mapping(self, file_path):
         """
