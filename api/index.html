@@ -1,0 +1,2042 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="基于 Mootdx 的二次封装与扩展">
+      
+      
+      
+      
+        <link rel="prev" href="..">
+      
+      
+        <link rel="next" href="../guide/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>API 参考 - Kitetdx</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#api" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href=".." title="Kitetdx" class="md-header__button md-logo" aria-label="Kitetdx" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Kitetdx
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              API 参考
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    <li class="md-tabs__item md-tabs__item--active">
+      <a href="./" class="md-tabs__link">
+        
+  
+  
+    
+  
+  API 参考
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../guide/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  使用指南
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Kitetdx" class="md-nav__button md-logo" aria-label="Kitetdx" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Kitetdx
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API 参考
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API 参考
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#reader" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reader (离线读取)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Reader (离线读取)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#reader_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reader 初始化
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reader_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reader 数据读取
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reader_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reader 概念、风格
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reader_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reader 行业数据
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#swsreader" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SwsReader 申万行业
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quotes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quotes (在线行情)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Quotes (在线行情)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#quotes_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quotes 初始化
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#quotes-k" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quotes K线数据
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#quotes_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quotes 分时数据
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#quotes_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quotes 分笔成交
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#quotes_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quotes 财务与除权
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#quotes_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quotes 市场列表
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#affair" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Affair (财务文件)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Affair (财务文件)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        文件命名规则
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    使用指南
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#reader" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reader (离线读取)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Reader (离线读取)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#reader_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reader 初始化
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reader_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reader 数据读取
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reader_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reader 概念、风格
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reader_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reader 行业数据
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#swsreader" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SwsReader 申万行业
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quotes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quotes (在线行情)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Quotes (在线行情)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#quotes_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quotes 初始化
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#quotes-k" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quotes K线数据
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#quotes_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quotes 分时数据
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#quotes_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quotes 分笔成交
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#quotes_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quotes 财务与除权
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#quotes_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quotes 市场列表
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#affair" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Affair (财务文件)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Affair (财务文件)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        文件命名规则
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="api">API 参考手册<a class="headerlink" href="#api" title="Permanent link">&para;</a></h1>
+<p><code>kitetdx</code> 基于 <code>mootdx</code> 开发，提供了一套统一的金融数据获取接口。本手册详细说明了主要模块及其方法。</p>
+<h2 id="reader">Reader (离线读取)<a class="headerlink" href="#reader" title="Permanent link">&para;</a></h2>
+<p>用于直接读取本地通达信安装目录下的数据文件（<code>.day</code>, <code>.lc1</code>, <code>.lc5</code> 等）。</p>
+<h3 id="reader_1">Reader 初始化<a class="headerlink" href="#reader_1" title="Permanent link">&para;</a></h3>
+<h4 id="readerfactorymarketstd-kwargs"><code>Reader.factory(market='std', **kwargs)</code><a class="headerlink" href="#readerfactorymarketstd-kwargs" title="Permanent link">&para;</a></h4>
+<p>创建 Reader 实例。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">参数</th>
+<th style="text-align: left;">类型</th>
+<th style="text-align: left;">默认值</th>
+<th style="text-align: left;">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>market</code></td>
+<td style="text-align: left;">str</td>
+<td style="text-align: left;"><code>'std'</code></td>
+<td style="text-align: left;">市场类型</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>tdxdir</code></td>
+<td style="text-align: left;">str</td>
+<td style="text-align: left;"><code>None</code></td>
+<td style="text-align: left;">通达信安装目录</td>
+</tr>
+</tbody>
+</table>
+<p><strong>tdxdir 查找优先级</strong>:
+1. <code>Reader.factory</code> 显式指定的 <code>tdxdir</code> 参数。
+2. 环境变量 <code>TDXDIR</code>。
+3. Windows 默认安装目录 <code>C:/new_tdx</code> (如果存在，会提示“检测到 Windows 客户端”)。
+4. 默认内置路径 <code>~/.kitetdx/tdx</code>。</p>
+<p><strong>返回</strong>: <code>Reader</code> 对象实例</p>
+<hr />
+<h3 id="reader_2">Reader 数据读取<a class="headerlink" href="#reader_2" title="Permanent link">&para;</a></h3>
+<h4 id="update_data"><code>update_data()</code><a class="headerlink" href="#update_data" title="Permanent link">&para;</a></h4>
+<p>手动检查并更新本地数据。
+- 检查本地 <code>lday</code> 目录时间戳。
+- 如果数据过期（早于最近交易日）且当前未收盘，或者目录不存在，则通过 Selenium 下载最新数据。
+- 建议在每日收盘后或首次使用前调用。</p>
+<h4 id="dailysymbol-kwargs"><code>daily(symbol, **kwargs)</code><a class="headerlink" href="#dailysymbol-kwargs" title="Permanent link">&para;</a></h4>
+<p>读取日线数据。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">参数</th>
+<th style="text-align: left;">类型</th>
+<th style="text-align: left;">默认值</th>
+<th style="text-align: left;">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>symbol</code></td>
+<td style="text-align: left;">str</td>
+<td style="text-align: left;">-</td>
+<td style="text-align: left;">股票代码</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>adjust</code></td>
+<td style="text-align: left;">str</td>
+<td style="text-align: left;"><code>None</code></td>
+<td style="text-align: left;">复权方式: <code>'qfq'</code> (前复权), <code>'hfq'</code> (后复权)</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>注意</strong>: 该方法不再自动检查更新。如需获取最新数据，请先调用 <code>update_data()</code>。</p>
+</blockquote>
+<p><strong>调用示例</strong>:</p>
+<pre><code class="language-python">from kitetdx import Reader
+
+# 使用默认路径 (~/.kitetdx/tdx)
+reader = Reader.factory()
+
+# 指定路径
+reader = Reader.factory(tdxdir='C:/new_tdx')
+
+# 读取原始数据
+df = reader.daily('600036')
+
+# 读取前复权数据
+df_qfq = reader.daily('600036', adjust='qfq')
+
+# 读取后复权数据
+df_hfq = reader.daily('600036', adjust='hfq')
+</code></pre>
+<p><strong>返回</strong>: <code>pd.DataFrame</code></p>
+<p><strong>列说明</strong>:
+- <code>open</code>: 开盘价
+- <code>high</code>: 最高价
+- <code>low</code>: 最低价
+- <code>close</code>: 收盘价
+- <code>volume</code>: 成交量 (手)
+- <code>amount</code>: 成交额 (元)</p>
+<p><strong>返回示例</strong>:</p>
+<pre><code class="language-python">                     open   high    low  close     volume       amount
+date
+2023-11-20  10.20  10.35  10.15  10.30  123456.0  1.234560e+08
+2023-11-21  10.30  10.40  10.25  10.38  110000.0  1.150000e+08
+</code></pre>
+<h4 id="minutesymbol-suffix1-kwargs"><code>minute(symbol, suffix=1, **kwargs)</code><a class="headerlink" href="#minutesymbol-suffix1-kwargs" title="Permanent link">&para;</a></h4>
+<p>读取分钟线数据。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">参数</th>
+<th style="text-align: left;">类型</th>
+<th style="text-align: left;">默认值</th>
+<th style="text-align: left;">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>symbol</code></td>
+<td style="text-align: left;">str</td>
+<td style="text-align: left;">-</td>
+<td style="text-align: left;">股票代码</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>suffix</code></td>
+<td style="text-align: left;">int</td>
+<td style="text-align: left;"><code>1</code></td>
+<td style="text-align: left;">周期: <code>1</code> (1分钟), <code>5</code> (5分钟)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>调用示例</strong>:</p>
+<pre><code class="language-python"># 读取1分钟线
+df = reader.minute('600036', suffix=1)
+# 读取5分钟线
+df_5 = reader.minute('600036', suffix=5)
+</code></pre>
+<p><strong>返回</strong>: <code>pd.DataFrame</code></p>
+<p><strong>列说明</strong>:
+- <code>open</code>, <code>high</code>, <code>low</code>, <code>close</code>
+- <code>vol</code>: 成交量
+- <code>amount</code>: 成交额</p>
+<p><strong>返回示例</strong>:</p>
+<pre><code class="language-python">                       open   high    low  close      vol      amount
+datetime
+2023-11-21 09:30:00  10.30  10.32  10.29  10.31  1000.00  1031000.0
+2023-11-21 09:31:00  10.31  10.33  10.30  10.32   800.00   825600.0
+</code></pre>
+<h4 id="fzlinesymbol"><code>fzline(symbol)</code><a class="headerlink" href="#fzlinesymbol" title="Permanent link">&para;</a></h4>
+<p>读取 5 分钟线数据。(<code>minute(suffix=5)</code> 的别名)</p>
+<h4 id="xdxrsymbol-kwargs"><code>xdxr(symbol, **kwargs)</code><a class="headerlink" href="#xdxrsymbol-kwargs" title="Permanent link">&para;</a></h4>
+<p>读取除权除息信息（调用在线接口辅助）。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">参数</th>
+<th style="text-align: left;">类型</th>
+<th style="text-align: left;">默认值</th>
+<th style="text-align: left;">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>symbol</code></td>
+<td style="text-align: left;">str</td>
+<td style="text-align: left;">-</td>
+<td style="text-align: left;">股票代码</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>method</code></td>
+<td style="text-align: left;">str</td>
+<td style="text-align: left;"><code>'qfq'</code></td>
+<td style="text-align: left;">复权方式 (用于缓存文件名)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>调用示例</strong>:</p>
+<pre><code class="language-python">df = reader.xdxr('600036')
+</code></pre>
+<p><strong>返回</strong>: <code>pd.DataFrame</code></p>
+<p><strong>列说明</strong>:
+- <code>date</code>: 除权日期 (Index)
+- <code>factor</code>: 复权因子</p>
+<p><strong>返回示例</strong>:</p>
+<pre><code class="language-python">            factor
+date
+2022-05-20   1.05
+2023-06-15   1.12
+</code></pre>
+<hr />
+<h3 id="reader_3">Reader 概念、风格<a class="headerlink" href="#reader_3" title="Permanent link">&para;</a></h3>
+<h4 id="blockconcept_typenone"><code>block(concept_type=None)</code><a class="headerlink" href="#blockconcept_typenone" title="Permanent link">&para;</a></h4>
+<p>读取通达信本地板块与概念数据。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">参数</th>
+<th style="text-align: left;">类型</th>
+<th style="text-align: left;">默认值</th>
+<th style="text-align: left;">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>concept_type</code></td>
+<td style="text-align: left;">str</td>
+<td style="text-align: left;"><code>None</code></td>
+<td style="text-align: left;">筛选类型: <code>'GN'</code> (概念), <code>'FG'</code> (风格), <code>'ZS'</code> (指数)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>调用示例</strong>:</p>
+<pre><code class="language-python"># 读取所有概念
+blocks = reader.block(concept_type='GN')
+# 筛选出锂电池板块的股票
+lithium_stocks = blocks[blocks['concept_name'] == '锂电池']
+</code></pre>
+<p><strong>返回</strong>: <code>pd.DataFrame</code></p>
+<p><strong>列说明</strong>:
+- <code>ID</code>: 序号
+- <code>concept_type</code>: 类型
+- <code>concept_name</code>: 板块名称
+- <code>concept_code</code>: 板块代码
+- <code>stock_code</code>: 股票代码
+- <code>stock_name</code>: 股票名称</p>
+<p><strong>返回示例</strong>:</p>
+<pre><code class="language-python">   ID concept_type concept_name concept_code stock_code stock_name
+0   1           GN         锂电池       880534     300750      宁德时代
+1   2           GN         锂电池       880534     002594      比亚迪
+2   3           FG         高价股       880801     600519      贵州茅台
+</code></pre>
+<hr />
+<h3 id="reader_4">Reader 行业数据<a class="headerlink" href="#reader_4" title="Permanent link">&para;</a></h3>
+<h4 id="get_industriessourcetdx-kwargs"><code>get_industries(source='tdx', **kwargs)</code><a class="headerlink" href="#get_industriessourcetdx-kwargs" title="Permanent link">&para;</a></h4>
+<p>获取行业分类列表。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">参数</th>
+<th style="text-align: left;">类型</th>
+<th style="text-align: left;">默认值</th>
+<th style="text-align: left;">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>source</code></td>
+<td style="text-align: left;">str</td>
+<td style="text-align: left;"><code>'tdx'</code></td>
+<td style="text-align: left;">数据源: <code>'tdx'</code> (通达信), <code>'sws'</code> (申万)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>level</code></td>
+<td style="text-align: left;">int</td>
+<td style="text-align: left;"><code>1</code></td>
+<td style="text-align: left;">行业级别 (1 或 2)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>统一级别映射 (Unified Levels)</strong>:
+| 级别 (level) | 名称 | 说明 |
+| :--- | :--- | :--- |
+| <strong>1</strong> | 一级行业 | 标准一级行业 (如：煤炭、银行) |
+| <strong>2</strong> | 二级行业 | 标准二级行业 (如：煤炭开采、股份制银行) |</p>
+<blockquote>
+<p>[!IMPORTANT]
+系统目前仅保留 <strong>Level 1</strong> (一级) 和 <strong>Level 2</strong> (二级) 行业，其他级别已移除以确保数据源之间的一致性。</p>
+</blockquote>
+<p><strong>返回</strong>: <code>pd.DataFrame</code> (columns: <code>industry_name</code>, <code>industry_code</code>, <code>level_type</code>)</p>
+<p><strong>列说明</strong>:
+- <code>industry_name</code>: 行业名称
+- <code>industry_code</code>: 行业代码 (通达信 T/X 编码)
+- <code>level_type</code>: 级别 (1, 2)
+- <code>block_code</code>: (仅 TDX) 对应 88xxxx 指数代码</p>
+<hr />
+<h4 id="get_industry_stocksindustry_code-sourcetdx-kwargs"><code>get_industry_stocks(industry_code, source='tdx', **kwargs)</code><a class="headerlink" href="#get_industry_stocksindustry_code-sourcetdx-kwargs" title="Permanent link">&para;</a></h4>
+<p>获取指定行业的成分股列表。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">参数</th>
+<th style="text-align: left;">类型</th>
+<th style="text-align: left;">默认值</th>
+<th style="text-align: left;">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>industry_code</code></td>
+<td style="text-align: left;">str</td>
+<td style="text-align: left;">-</td>
+<td style="text-align: left;">行业代码 (Txxxx)、板块代码 (88xxxx) 或行业名称</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>source</code></td>
+<td style="text-align: left;">str</td>
+<td style="text-align: left;"><code>'tdx'</code></td>
+<td style="text-align: left;">数据源: <code>'tdx'</code>, <code>'sws'</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>调用示例</strong>:</p>
+<pre><code class="language-python"># 获取通达信医药行业股票
+stocks = reader.get_industry_stocks('医药')
+# 获取申万银行行业股票
+stocks_sws = reader.get_industry_stocks('银行', source='sws')
+</code></pre>
+<p><strong>返回</strong>: <code>list[str]</code> (股票代码列表, 如 <code>['600000', '000001']</code>)</p>
+<h4 id="get_stock_industrystock_code-sourcetdx-kwargs"><code>get_stock_industry(stock_code, source='tdx', **kwargs)</code><a class="headerlink" href="#get_stock_industrystock_code-sourcetdx-kwargs" title="Permanent link">&para;</a></h4>
+<p>获取指定股票的所属行业信息。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">参数</th>
+<th style="text-align: left;">类型</th>
+<th style="text-align: left;">默认值</th>
+<th style="text-align: left;">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>stock_code</code></td>
+<td style="text-align: left;">str</td>
+<td style="text-align: left;">-</td>
+<td style="text-align: left;">股票代码 (如 <code>'600036'</code>)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>source</code></td>
+<td style="text-align: left;">str</td>
+<td style="text-align: left;"><code>'tdx'</code></td>
+<td style="text-align: left;">数据源: <code>'tdx'</code>, <code>'sws'</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>统一返回格式 (Standardized Return)</strong>:</p>
+<pre><code class="language-python">{
+    'stock_code': '600036',
+    'stock_name': '招商银行',
+    'l1_name': '银行',
+    'l1_code': 'T1001',      # 或 SWS 编码前两位
+    'l2_name': '股份制银行',  # 对应二级行业名称
+    'l2_code': 'T100101'     # 或 SWS 编码前四位
+}
+</code></pre>
+<blockquote>
+<p>[!TIP]
+该方法会自动合并多级行业信息，确保同时返回一级 (<code>l1</code>) 和二级 (<code>l2</code>) 行业的名称与代码。</p>
+</blockquote>
+<h3 id="swsreader">SwsReader 申万行业<a class="headerlink" href="#swsreader" title="Permanent link">&para;</a></h3>
+<h4 id="__init__auto_downloadtrue-force_updatefalse"><code>__init__(auto_download=True, force_update=False)</code><a class="headerlink" href="#__init__auto_downloadtrue-force_updatefalse" title="Permanent link">&para;</a></h4>
+<p>初始化阅读器。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">参数</th>
+<th style="text-align: left;">类型</th>
+<th style="text-align: left;">默认值</th>
+<th style="text-align: left;">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>auto_download</code></td>
+<td style="text-align: left;">bool</td>
+<td style="text-align: left;"><code>True</code></td>
+<td style="text-align: left;">数据缺失时是否自动下载</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>force_update</code></td>
+<td style="text-align: left;">bool</td>
+<td style="text-align: left;"><code>False</code></td>
+<td style="text-align: left;">是否强制更新缓存 (缓存有效期默认3个月)</td>
+</tr>
+</tbody>
+</table>
+<h4 id="get_industrieslevel1-return_dftrue"><code>get_industries(level=1, return_df=True)</code><a class="headerlink" href="#get_industrieslevel1-return_dftrue" title="Permanent link">&para;</a></h4>
+<p>获取申万行业列表。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">参数</th>
+<th style="text-align: left;">类型</th>
+<th style="text-align: left;">默认值</th>
+<th style="text-align: left;">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>level</code></td>
+<td style="text-align: left;">int</td>
+<td style="text-align: left;"><code>1</code></td>
+<td style="text-align: left;">行业级别 (1, 2, 3)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>return_df</code></td>
+<td style="text-align: left;">bool</td>
+<td style="text-align: left;"><code>True</code></td>
+<td style="text-align: left;">是否返回 DataFrame</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>调用示例</strong>:</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-python">sws = SwsReader()
+l1 = sws.get_industries(level=1)
+</code></pre>
+<p><strong>返回</strong>: <code>list[str]</code> (行业名称列表, 如 <code>['银行', '房地产']</code>)</p>
+<h4 id="get_industry_stocksindustry_name"><code>get_industry_stocks(industry_name)</code><a class="headerlink" href="#get_industry_stocksindustry_name" title="Permanent link">&para;</a></h4>
+<p>获取指定申万行业的成分股。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">参数</th>
+<th style="text-align: left;">类型</th>
+<th style="text-align: left;">默认值</th>
+<th style="text-align: left;">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>调用示例</strong>:</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-python">bank_stocks = sws.get_industry_stocks('银行')
+</code></pre>
+<p><strong>返回</strong>: <code>list[str]</code> (股票代码列表)</p>
+<p><strong>返回示例</strong>:</p>
+<pre><code class="language-python">['600036', '601398', ...]
+</code></pre>
+<h4 id="blockconcept_type1-return_dffalse"><code>block(concept_type='1', return_df=False)</code><a class="headerlink" href="#blockconcept_type1-return_dffalse" title="Permanent link">&para;</a></h4>
+<p>获取申万板块数据。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">参数</th>
+<th style="text-align: left;">类型</th>
+<th style="text-align: left;">默认值</th>
+<th style="text-align: left;">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>concept_type</code></td>
+<td style="text-align: left;">str</td>
+<td style="text-align: left;"><code>'1'</code></td>
+<td style="text-align: left;">级别: <code>'1'</code>, <code>'2'</code>, <code>'3'</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>return_df</code></td>
+<td style="text-align: left;">bool</td>
+<td style="text-align: left;"><code>False</code></td>
+<td style="text-align: left;">是否返回 DataFrame</td>
+</tr>
+</tbody>
+</table>
+<p><strong>返回</strong>: <code>list[Block]</code> 或 <code>pd.DataFrame</code></p>
+<p><strong>返回示例 (DataFrame)</strong>:</p>
+<pre><code class="language-python">  concept_type concept_name concept_code stock_code stock_name
+0       sws_l1           银行                 600036     招商银行
+1       sws_l1           银行                 601398     工商银行
+</code></pre>
+<h4 id="get_stock_industrystock_code"><code>get_stock_industry(stock_code)</code><a class="headerlink" href="#get_stock_industrystock_code" title="Permanent link">&para;</a></h4>
+<p>获取指定股票的申万行业分类。</p>
+<p><strong>返回</strong>: <code>dict</code> (格式与 <code>Reader.get_stock_industry</code> 统一)</p>
+<hr />
+<h2 id="quotes">Quotes (在线行情)<a class="headerlink" href="#quotes" title="Permanent link">&para;</a></h2>
+<p>用于连接通达信服务器，获取实时或历史行情数据。</p>
+<blockquote>
+<p><strong>注意</strong>: 在线接口依赖于第三方服务器，连接稳定性可能有所波动。</p>
+</blockquote>
+<h3 id="quotes_1">Quotes 初始化<a class="headerlink" href="#quotes_1" title="Permanent link">&para;</a></h3>
+<h4 id="quotesfactorymarketstd-kwargs"><code>Quotes.factory(market='std', **kwargs)</code><a class="headerlink" href="#quotesfactorymarketstd-kwargs" title="Permanent link">&para;</a></h4>
+<p>创建行情客户端实例。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">参数</th>
+<th style="text-align: left;">类型</th>
+<th style="text-align: left;">默认值</th>
+<th style="text-align: left;">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>market</code></td>
+<td style="text-align: left;">str</td>
+<td style="text-align: left;"><code>'std'</code></td>
+<td style="text-align: left;">市场类型：<code>'std'</code> (标准市场), <code>'ext'</code> (扩展市场)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>multithread</code></td>
+<td style="text-align: left;">bool</td>
+<td style="text-align: left;"><code>True</code></td>
+<td style="text-align: left;">是否开启多线程</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>heartbeat</code></td>
+<td style="text-align: left;">bool</td>
+<td style="text-align: left;"><code>True</code></td>
+<td style="text-align: left;">是否开启心跳检测</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>bestip</code></td>
+<td style="text-align: left;">bool</td>
+<td style="text-align: left;"><code>True</code></td>
+<td style="text-align: left;">是否自动选择最优 IP</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>timeout</code></td>
+<td style="text-align: left;">int</td>
+<td style="text-align: left;"><code>15</code></td>
+<td style="text-align: left;">连接超时时间 (秒)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>调用示例</strong>:</p>
+<pre><code class="language-python">from kitetdx import Quotes
+
+# 标准市场初始化
+client = Quotes.factory(market='std')
+</code></pre>
+<p><strong>返回</strong>: <code>Quotes</code> 对象实例</p>
+<hr />
+<h3 id="quotes-k">Quotes K线数据<a class="headerlink" href="#quotes-k" title="Permanent link">&para;</a></h3>
+<h4 id="barssymbol-frequency9-start0-offset800-kwargs"><code>bars(symbol, frequency=9, start=0, offset=800, **kwargs)</code><a class="headerlink" href="#barssymbol-frequency9-start0-offset800-kwargs" title="Permanent link">&para;</a></h4>
+<p>获取实时 K 线数据（包含指数）。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">参数</th>
+<th style="text-align: left;">类型</th>
+<th style="text-align: left;">默认值</th>
+<th style="text-align: left;">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>symbol</code></td>
+<td style="text-align: left;">str</td>
+<td style="text-align: left;"><code>'000001'</code></td>
+<td style="text-align: left;">股票代码</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>frequency</code></td>
+<td style="text-align: left;">int</td>
+<td style="text-align: left;"><code>9</code></td>
+<td style="text-align: left;">K线周期代码 (见下方说明)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>start</code></td>
+<td style="text-align: left;">int</td>
+<td style="text-align: left;"><code>0</code></td>
+<td style="text-align: left;">起始位置 (0 为最新一条)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>offset</code></td>
+<td style="text-align: left;">int</td>
+<td style="text-align: left;"><code>800</code></td>
+<td style="text-align: left;">获取数量 (最大 800)</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Frequency 代码表</strong>:
+- <code>0</code>: 5分钟
+- <code>1</code>: 15分钟
+- <code>2</code>: 30分钟
+- <code>3</code>: 1小时
+- <code>4</code>: 日线
+- <code>5</code>: 周线
+- <code>6</code>: 月线
+- <code>7</code>: 1分钟
+- <code>8</code>: 1分钟K线
+- <code>9</code>: 日线
+- <code>10</code>: 季线
+- <code>11</code>: 年线</p>
+</blockquote>
+<p><strong>调用示例</strong>:</p>
+<pre><code class="language-python"># 获取招商银行最近 100 天的日线
+df = client.bars(symbol='600036', frequency=9, offset=100)
+</code></pre>
+<p><strong>返回</strong>: <code>pd.DataFrame</code></p>
+<p><strong>列说明</strong>:
+- <code>open</code>: 开盘价
+- <code>close</code>: 收盘价
+- <code>high</code>: 最高价
+- <code>low</code>: 最低价
+- <code>vol</code>: 成交量
+- <code>amount</code>: 成交额
+- <code>year</code>, <code>month</code>, <code>day</code>: 日期
+- <code>hour</code>, <code>minute</code>: 时间 (分钟线特有)</p>
+<p><strong>返回示例</strong>:</p>
+<pre><code class="language-python">      open   close    high     low       vol        amount  year  month  day  hour  minute
+0    12.34   12.56   12.60   12.30   10000.0   1234567.0  2023     10   27    15      00
+1    12.56   12.40   12.58   12.35   15000.0   1867890.0  2023     10   30    15      00
+</code></pre>
+<h4 id="index_barssymbol-frequency9-start0-offset800-kwargs"><code>index_bars(symbol, frequency=9, start=0, offset=800, **kwargs)</code><a class="headerlink" href="#index_barssymbol-frequency9-start0-offset800-kwargs" title="Permanent link">&para;</a></h4>
+<p>获取指数 K 线数据。参数与 <code>bars</code> 相同。</p>
+<p><strong>调用示例</strong>:</p>
+<pre><code class="language-python"># 获取上证指数日线
+df = client.index_bars(symbol='999999', frequency=9)
+</code></pre>
+<p><strong>返回</strong>: <code>pd.DataFrame</code> (列结构与 <code>bars</code> 相同)</p>
+<h4 id="ksymbol-beginnone-endnone-kwargs"><code>k(symbol, begin=None, end=None, **kwargs)</code><a class="headerlink" href="#ksymbol-beginnone-endnone-kwargs" title="Permanent link">&para;</a></h4>
+<p>获取历史 K 线数据（按日期范围）。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">参数</th>
+<th style="text-align: left;">类型</th>
+<th style="text-align: left;">默认值</th>
+<th style="text-align: left;">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>symbol</code></td>
+<td style="text-align: left;">str</td>
+<td style="text-align: left;">-</td>
+<td style="text-align: left;">股票代码</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>begin</code></td>
+<td style="text-align: left;">str</td>
+<td style="text-align: left;"><code>None</code></td>
+<td style="text-align: left;">开始日期 (如 <code>'20230101'</code>)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>end</code></td>
+<td style="text-align: left;">str</td>
+<td style="text-align: left;"><code>None</code></td>
+<td style="text-align: left;">结束日期 (如 <code>'20231231'</code>)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>调用示例</strong>:</p>
+<pre><code class="language-python"># 获取指定日期范围的日线
+df = client.k(symbol='000001', begin='20230101', end='20230131')
+</code></pre>
+<p><strong>返回</strong>: <code>pd.DataFrame</code> (列结构与 <code>bars</code> 相同)</p>
+<h4 id="ohlckwargs"><code>ohlc(**kwargs)</code><a class="headerlink" href="#ohlckwargs" title="Permanent link">&para;</a></h4>
+<p><code>k</code> 方法的别名。</p>
+<hr />
+<h3 id="quotes_2">Quotes 分时数据<a class="headerlink" href="#quotes_2" title="Permanent link">&para;</a></h3>
+<h4 id="minutesymbol-kwargs"><code>minute(symbol, **kwargs)</code><a class="headerlink" href="#minutesymbol-kwargs" title="Permanent link">&para;</a></h4>
+<p>获取实时分时图数据。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">参数</th>
+<th style="text-align: left;">类型</th>
+<th style="text-align: left;">默认值</th>
+<th style="text-align: left;">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>symbol</code></td>
+<td style="text-align: left;">str</td>
+<td style="text-align: left;">-</td>
+<td style="text-align: left;">股票代码</td>
+</tr>
+</tbody>
+</table>
+<p><strong>调用示例</strong>:</p>
+<pre><code class="language-python"># 获取当前分时数据
+df = client.minute(symbol='600036')
+</code></pre>
+<p><strong>返回</strong>: <code>pd.DataFrame</code></p>
+<p><strong>列说明</strong>:
+- <code>price</code>: 价格
+- <code>vol</code>: 成交量 (手)
+- <code>amount</code>: 成交金额 (元) (可能为空或0)</p>
+<p><strong>返回示例</strong>:</p>
+<pre><code class="language-python">                     price     vol      amount
+2023-11-20 09:30:00  10.30  1000.0   1030000.0
+2023-11-20 09:31:00  10.32   500.0    516000.0
+</code></pre>
+<h4 id="minutessymbol-date-kwargs"><code>minutes(symbol, date, **kwargs)</code><a class="headerlink" href="#minutessymbol-date-kwargs" title="Permanent link">&para;</a></h4>
+<p>获取历史分时数据。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">参数</th>
+<th style="text-align: left;">类型</th>
+<th style="text-align: left;">默认值</th>
+<th style="text-align: left;">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>symbol</code></td>
+<td style="text-align: left;">str</td>
+<td style="text-align: left;">-</td>
+<td style="text-align: left;">股票代码</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>date</code></td>
+<td style="text-align: left;">str</td>
+<td style="text-align: left;"><code>'20191023'</code></td>
+<td style="text-align: left;">查询日期 (如 <code>'20230101'</code>)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>调用示例</strong>:</p>
+<pre><code class="language-python"># 获取历史某日的分时
+df = client.minutes(symbol='600036', date='20231120')
+</code></pre>
+<p><strong>返回</strong>: <code>pd.DataFrame</code> (列结构与 <code>minute</code> 相同)</p>
+<hr />
+<h3 id="quotes_3">Quotes 分笔成交<a class="headerlink" href="#quotes_3" title="Permanent link">&para;</a></h3>
+<h4 id="transactionsymbol-start0-offset800-kwargs"><code>transaction(symbol, start=0, offset=800, **kwargs)</code><a class="headerlink" href="#transactionsymbol-start0-offset800-kwargs" title="Permanent link">&para;</a></h4>
+<p>获取实时分笔成交。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">参数</th>
+<th style="text-align: left;">类型</th>
+<th style="text-align: left;">默认值</th>
+<th style="text-align: left;">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>symbol</code></td>
+<td style="text-align: left;">str</td>
+<td style="text-align: left;">-</td>
+<td style="text-align: left;">股票代码</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>start</code></td>
+<td style="text-align: left;">int</td>
+<td style="text-align: left;"><code>0</code></td>
+<td style="text-align: left;">起始位置</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>offset</code></td>
+<td style="text-align: left;">int</td>
+<td style="text-align: left;"><code>800</code></td>
+<td style="text-align: left;">获取数量</td>
+</tr>
+</tbody>
+</table>
+<p><strong>调用示例</strong>:</p>
+<pre><code class="language-python"># 获取最新 100 笔成交
+df = client.transaction(symbol='000001', offset=100)
+</code></pre>
+<p><strong>返回</strong>: <code>pd.DataFrame</code></p>
+<p><strong>列说明</strong>:
+- <code>time</code>: 时间 (HH:MM)
+- <code>price</code>: 价格
+- <code>vol</code>: 成交量 (手)
+- <code>buyorsell</code>: 买卖盘 (0: 混合/中性, 1: 买入, 2: 卖出)</p>
+<p><strong>返回示例</strong>:</p>
+<pre><code class="language-python">    time  price  vol  buyorsell
+0  14:55  10.30   50          1
+1  14:55  10.31   20          2
+</code></pre>
+<h4 id="transactionssymbol-start0-offset800-date20170209-kwargs"><code>transactions(symbol, start=0, offset=800, date='20170209', **kwargs)</code><a class="headerlink" href="#transactionssymbol-start0-offset800-date20170209-kwargs" title="Permanent link">&para;</a></h4>
+<p>获取历史分笔成交。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">参数</th>
+<th style="text-align: left;">类型</th>
+<th style="text-align: left;">默认值</th>
+<th style="text-align: left;">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>symbol</code></td>
+<td style="text-align: left;">str</td>
+<td style="text-align: left;">-</td>
+<td style="text-align: left;">股票代码</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>start</code></td>
+<td style="text-align: left;">int</td>
+<td style="text-align: left;"><code>0</code></td>
+<td style="text-align: left;">起始位置</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>offset</code></td>
+<td style="text-align: left;">int</td>
+<td style="text-align: left;"><code>800</code></td>
+<td style="text-align: left;">获取数量</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>date</code></td>
+<td style="text-align: left;">str</td>
+<td style="text-align: left;"><code>'20170209'</code></td>
+<td style="text-align: left;">查询日期</td>
+</tr>
+</tbody>
+</table>
+<p><strong>调用示例</strong>:</p>
+<pre><code class="language-python">df = client.transactions(symbol='000001', date='20231120')
+</code></pre>
+<p><strong>返回</strong>: <code>pd.DataFrame</code> (列结构与 <code>transaction</code> 相同)</p>
+<hr />
+<h3 id="quotes_4">Quotes 财务与除权<a class="headerlink" href="#quotes_4" title="Permanent link">&para;</a></h3>
+<h4 id="f10symbol-name"><code>F10(symbol, name='')</code><a class="headerlink" href="#f10symbol-name" title="Permanent link">&para;</a></h4>
+<p>读取公司 F10 信息。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">参数</th>
+<th style="text-align: left;">类型</th>
+<th style="text-align: left;">默认值</th>
+<th style="text-align: left;">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>symbol</code></td>
+<td style="text-align: left;">str</td>
+<td style="text-align: left;">-</td>
+<td style="text-align: left;">股票代码</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>name</code></td>
+<td style="text-align: left;">str</td>
+<td style="text-align: left;"><code>''</code></td>
+<td style="text-align: left;">栏目名称 (如 "最新提示", "公司概况"等)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>调用示例</strong>:</p>
+<pre><code class="language-python"># 获取 F10 目录
+df_dir = client.F10(symbol='000001')
+# 获取具体内容
+df_content = client.F10(symbol='000001', name='最新提示')
+</code></pre>
+<p><strong>返回</strong>: <code>pd.DataFrame</code> 或 <code>dict</code></p>
+<p><strong>返回示例 (获取目录)</strong>:</p>
+<pre><code class="language-python">[{'title': '最新提示', 'length': 1234, 'offset': 0}, ...]
+</code></pre>
+<h4 id="financesymbol-kwargs"><code>finance(symbol, **kwargs)</code><a class="headerlink" href="#financesymbol-kwargs" title="Permanent link">&para;</a></h4>
+<p>读取财务信息。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">参数</th>
+<th style="text-align: left;">类型</th>
+<th style="text-align: left;">默认值</th>
+<th style="text-align: left;">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>symbol</code></td>
+<td style="text-align: left;">str</td>
+<td style="text-align: left;"><code>'000001'</code></td>
+<td style="text-align: left;">股票代码</td>
+</tr>
+</tbody>
+</table>
+<p><strong>调用示例</strong>:</p>
+<pre><code class="language-python">df = client.finance(symbol='600036')
+</code></pre>
+<p><strong>返回</strong>: <code>pd.DataFrame</code></p>
+<p><strong>主要列说明</strong>:
+- <code>total_assets</code>: 资产总计
+- (更多专业财务指标)</p>
+<p><strong>返回示例</strong>:</p>
+<pre><code class="language-python">   liabilities  net_profit  fixed_assets  ...
+0     1.23e+10    5.67e+08      8.90e+09  ...
+</code></pre>
+<h4 id="xdxrsymbol-kwargs_1"><code>xdxr(symbol, **kwargs)</code><a class="headerlink" href="#xdxrsymbol-kwargs_1" title="Permanent link">&para;</a></h4>
+<p>读取除权除息信息。优先从新浪接口获取复权因子以提高准确性。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">参数</th>
+<th style="text-align: left;">类型</th>
+<th style="text-align: left;">默认值</th>
+<th style="text-align: left;">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>symbol</code></td>
+<td style="text-align: left;">str</td>
+<td style="text-align: left;">-</td>
+<td style="text-align: left;">股票代码</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>method</code></td>
+<td style="text-align: left;">str</td>
+<td style="text-align: left;"><code>'qfq'</code></td>
+<td style="text-align: left;">复权方式: <code>'qfq'</code> (前复权), <code>'hfq'</code> (后复权)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>调用示例</strong>:</p>
+<pre><code class="language-python">df = client.xdxr(symbol='000001')
+</code></pre>
+<p><strong>返回</strong>: <code>pd.DataFrame</code></p>
+<p><strong>列说明</strong>:
+- <code>suoding_date</code>: 股权登记日
+- <code>ex_date</code>: 除权除息日</p>
+<p><strong>返回示例</strong>:</p>
+<pre><code class="language-python">            factor  fenhong  songzhuanyuan ...
+date                                          
+2023-06-15    1.12      2.5              0 ...
+</code></pre>
+<hr />
+<h3 id="quotes_5">Quotes 市场列表<a class="headerlink" href="#quotes_5" title="Permanent link">&para;</a></h3>
+<h4 id="stock_countmarketmarket_sh"><code>stock_count(market=MARKET_SH)</code><a class="headerlink" href="#stock_countmarketmarket_sh" title="Permanent link">&para;</a></h4>
+<p>获取市场股票数量。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">参数</th>
+<th style="text-align: left;">类型</th>
+<th style="text-align: left;">默认值</th>
+<th style="text-align: left;">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>market</code></td>
+<td style="text-align: left;">int</td>
+<td style="text-align: left;"><code>1</code></td>
+<td style="text-align: left;">市场代码: <code>1</code> (沪), <code>0</code> (深), <code>2</code> (北)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>调用示例</strong>:</p>
+<pre><code class="language-python">count = client.stock_count(market=1)
+</code></pre>
+<p><strong>返回</strong>: <code>int</code></p>
+<h4 id="stocksmarketmarket_sh"><code>stocks(market=MARKET_SH)</code><a class="headerlink" href="#stocksmarketmarket_sh" title="Permanent link">&para;</a></h4>
+<p>获取指定市场的股票列表。</p>
+<p><strong>调用示例</strong>:</p>
+<pre><code class="language-python">df = client.stocks(market=1)
+</code></pre>
+<p><strong>返回</strong>: <code>pd.DataFrame</code></p>
+<p><strong>列说明</strong>:
+- <code>active2</code>: 活跃度</p>
+<p><strong>返回示例</strong>:</p>
+<pre><code class="language-python">     code  name  volunit  decimal_point  pre_close  active2
+0  600036  招商银行      100              2      32.50     1234
+1  600000  浦发银行      100              2       7.20      800
+</code></pre>
+<h4 id="stock_all"><code>stock_all()</code><a class="headerlink" href="#stock_all" title="Permanent link">&para;</a></h4>
+<p>获取所有市场的股票列表。</p>
+<p><strong>调用示例</strong>:</p>
+<pre><code class="language-python">df = client.stock_all()
+</code></pre>
+<p><strong>返回</strong>: <code>pd.DataFrame</code> (聚合所有市场的股票列表)</p>
+<h4 id="blocktofileblockdat-kwargs"><code>block(tofile='block.dat', **kwargs)</code><a class="headerlink" href="#blocktofileblockdat-kwargs" title="Permanent link">&para;</a></h4>
+<p>获取证券板块信息。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">参数</th>
+<th style="text-align: left;">类型</th>
+<th style="text-align: left;">默认值</th>
+<th style="text-align: left;">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>tofile</code></td>
+<td style="text-align: left;">str</td>
+<td style="text-align: left;"><code>'block.dat'</code></td>
+<td style="text-align: left;">保存文件名</td>
+</tr>
+</tbody>
+</table>
+<p><strong>调用示例</strong>:</p>
+<pre><code class="language-python"># 下载板块数据到本地
+df = client.block(tofile='tdx_block.dat')
+</code></pre>
+<p><strong>返回</strong>: <code>pd.DataFrame</code></p>
+<p><strong>列说明</strong>:
+- <code>blockcode</code>: 板块代码</p>
+<p><strong>返回示例</strong>:</p>
+<pre><code class="language-python">      blockname    code blockcode
+0  SH 50 指数成份  600036    880491
+1  SH 50 指数成份  600000    880491
+</code></pre>
+<hr />
+<h2 id="affair">Affair (财务文件)<a class="headerlink" href="#affair" title="Permanent link">&para;</a></h2>
+<p>用于下载和解析通达信专业财务数据文件，包含上市公司季报、中报、年报等财务指标。</p>
+<h3 id="_1">文件命名规则<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">文件名格式</th>
+<th style="text-align: left;">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>gpcw20231231.zip</code></td>
+<td style="text-align: left;">2023年年报 (12月31日)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>gpcw20230930.zip</code></td>
+<td style="text-align: left;">2023年三季报 (9月30日)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>gpcw20230630.zip</code></td>
+<td style="text-align: left;">2023年中报 (6月30日)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>gpcw20230331.zip</code></td>
+<td style="text-align: left;">2023年一季报 (3月31日)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h4 id="files"><code>files()</code><a class="headerlink" href="#files" title="Permanent link">&para;</a></h4>
+<p>获取远程财务文件列表。</p>
+<p><strong>调用示例</strong>:</p>
+<pre><code class="language-python">from kitetdx import Affair
+
+# 获取可用的财务文件列表
+files = Affair.files()
+print(files[:3])
+# [{'filename': 'gpcw20231231.zip', 'hash': '...', 'filesize': 5648421}, ...]
+</code></pre>
+<p><strong>返回</strong>: <code>list[dict]</code> - 包含 <code>filename</code>, <code>hash</code>, <code>filesize</code> 字段</p>
+<hr />
+<h4 id="fetchdowndirtmp-filename"><code>fetch(downdir='tmp', filename='')</code><a class="headerlink" href="#fetchdowndirtmp-filename" title="Permanent link">&para;</a></h4>
+<p>下载财务文件。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">参数</th>
+<th style="text-align: left;">类型</th>
+<th style="text-align: left;">默认值</th>
+<th style="text-align: left;">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>downdir</code></td>
+<td style="text-align: left;">str</td>
+<td style="text-align: left;"><code>'tmp'</code></td>
+<td style="text-align: left;">本地下载目录 (不存在会自动创建)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>filename</code></td>
+<td style="text-align: left;">str</td>
+<td style="text-align: left;"><code>''</code></td>
+<td style="text-align: left;">指定文件名 (留空则下载所有文件)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>调用示例</strong>:</p>
+<pre><code class="language-python"># 下载2023年年报数据
+Affair.fetch(downdir='财务数据', filename='gpcw20231231.zip')
+</code></pre>
+<p><strong>返回</strong>: <code>bool</code></p>
+<hr />
+<h4 id="parsedowndirtmp-filename"><code>parse(downdir='tmp', filename='')</code><a class="headerlink" href="#parsedowndirtmp-filename" title="Permanent link">&para;</a></h4>
+<p>解析本地财务文件。如果文件不存在，会自动调用 <code>fetch()</code> 下载。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">参数</th>
+<th style="text-align: left;">类型</th>
+<th style="text-align: left;">默认值</th>
+<th style="text-align: left;">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>downdir</code></td>
+<td style="text-align: left;">str</td>
+<td style="text-align: left;"><code>'tmp'</code></td>
+<td style="text-align: left;">文件所在目录</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>filename</code></td>
+<td style="text-align: left;">str</td>
+<td style="text-align: left;">-</td>
+<td style="text-align: left;">文件名 (<strong>必填</strong>)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>调用示例</strong>:</p>
+<pre><code class="language-python"># 解析2023年年报
+df = Affair.parse(downdir='财务数据', filename='gpcw20231231.zip')
+print(df.head())
+</code></pre>
+<p><strong>返回</strong>: <code>pd.DataFrame</code></p>
+<p><strong>主要列说明</strong> (共 585 列):</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">列名</th>
+<th style="text-align: left;">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>code</code></td>
+<td style="text-align: left;">股票代码 (Index)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>report_date</code></td>
+<td style="text-align: left;">报告日期</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>基本每股收益</code></td>
+<td style="text-align: left;">基本每股收益 (元)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>扣除非经常性损益每股收益</code></td>
+<td style="text-align: left;">扣非每股收益 (元)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>每股净资产</code></td>
+<td style="text-align: left;">每股净资产 (元)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>净资产收益率</code></td>
+<td style="text-align: left;">ROE (%)</td>
+</tr>
+<tr>
+<td style="text-align: left;">...</td>
+<td style="text-align: left;">更多财务指标</td>
+</tr>
+</tbody>
+</table>
+<p><strong>返回示例</strong>:</p>
+<pre><code class="language-python">        report_date  基本每股收益  扣除非经常性损益每股收益  ...
+code                                              
+000001     20231231     2.25              2.25  ...
+000002     20231231     1.03              0.83  ...
+600036     20231231     5.28              5.12  ...
+</code></pre>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.instant", "navigation.tracking", "navigation.tabs", "navigation.sections", "navigation.top", "toc.follow"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
