@@ -37,7 +37,60 @@ concepts = reader.block()
 4          5           GN        通达信88       880515     000725       京东方Ａ
 ```
 
+## 行业板块信息
+
+`kitetdx` 提供了统一的接口来获取通达信 (TDX) 和申万 (SWS) 的行业分类数据。
+
+### 通达信行业 (TDX)
+
+使用 `Reader` 模块获取本地通达信的行业分类。
+
+```python
+from kitetdx import Reader
+
+reader = Reader.factory()
+
+# 1. 获取行业列表 (Level 1: 一级行业, Level 2: 二级行业)
+industries = reader.get_industries(source='tdx', level=1)
+print(industries.head())
+#   industry_name industry_code  level_type block_code
+# 0            煤炭         T1001           1     880301
+
+# 2. 获取行业成分股
+stocks = reader.get_industry_stocks('T1001') # 使用行业代码
+# 或者
+stocks = reader.get_industry_stocks('煤炭')  # 使用行业名称
+
+# 3. 查询个股所属行业
+info = reader.get_stock_industry('600036')
+print(info)
+# {'l1_name': '银行', 'l1_code': 'T1002', 'l2_name': '股份制银行', 'l2_code': 'T100201', ...}
+```
+
+### 申万行业 (SWS)
+
+使用 `SwsReader` (或通用接口) 获取申万行业分类。
+
+```python
+from kitetdx import SwsReader
+
+sws = SwsReader(auto_download=True)
+
+# 1. 获取行业列表
+l1_industries = sws.get_industries(level=1)
+print(l1_industries[:5]) # ['农林牧渔', '基础化工', ...]
+
+# 2. 获取行业成分股
+stocks = sws.get_industry_stocks('银行')
+
+# 3. 查询个股所属行业
+info = sws.get_stock_industry('600036')
+print(info)
+# {'l1_name': '银行', 'l1_code': '480000', 'l2_name': '股份制银行', 'l2_code': '480300', ...}
+```
+
 ## 在线行情获取
+
 
 使用 `Quotes` 模块获取实时数据。
 

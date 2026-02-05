@@ -24,3 +24,5 @@ mootdx==0.11.7 ; python_version >= "3.8" and python_version < "4.0"
 selenium>=4.15.0 ; python_version >= "3.8" and python_version < "4.0"
 webdriver-manager>=4.0.0 ; python_version >= "3.8" and python_version < "4.0"
 mootdx==0.11.7
+mkdocs>=1.5.0
+mkdocs-material>=9.4.0

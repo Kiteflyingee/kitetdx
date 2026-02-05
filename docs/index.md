@@ -10,8 +10,11 @@
 ## 快速开始
 
 ```python
-from kitetdx import Quotes
+from kitetdx import Reader
 
-client = Quotes.factory(market='std')
-print(client.bars(symbol='600036'))
+reader = Reader.factory(tdxdir='C:/new_tdx')
+# 如果没有安装客户端可以手动更新数据
+reader.update_data()
+# 读取股票日线数据
+print(reader.daily(symbol='600036'))
 ```
