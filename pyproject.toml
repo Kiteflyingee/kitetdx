@@ -32,6 +32,7 @@ quickjs = "*"
 selenium = "^4.15.0"
 webdriver-manager = "^4.0.0"
 mootdx = "*"
+openpyxl = "^3.1.5"
 
 [tool.poetry.group.test.dependencies]
 pytest-cov = "^4.0.0"

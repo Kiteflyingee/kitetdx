@@ -6,4 +6,6 @@ from .reader import Reader
 from .affair import Affair
 from .adjust import to_adjust, fetch_fq_factor
 
-__all__ = ['Quotes', 'Reader', 'Affair', 'to_adjust', 'fetch_fq_factor']
+from .sws import SwsReader
+
+__all__ = ['Quotes', 'Reader', 'Affair', 'SwsReader', 'to_adjust', 'fetch_fq_factor']

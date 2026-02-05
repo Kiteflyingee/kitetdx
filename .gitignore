@@ -75,3 +75,5 @@ tdx
 
 data/*
 kitetdx-mcp/*
+
+tmp/

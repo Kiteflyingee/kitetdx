@@ -14,6 +14,21 @@ from mootdx.utils import get_stock_market
 from mootdx.logger import logger
 from kitetdx.utils import read_data, to_data
 from kitetdx.downloader import TdxSeleniumDownloader
+import os
+
+def get_default_tdx_dir():
+    """
+    获取默认的通达信数据目录
+    优先级: 
+    1. C:/new_tdx (如果存在，提示检测到 Windows 客户端)
+    2. ~/.kitetdx/tdx (默认内部路径)
+    """
+    win_path = 'C:/new_tdx'
+    if os.path.exists(win_path):
+        print(f"[Reader] 检测到已安装 Windows 通达信客户端: {win_path}")
+        return win_path
+
+    return os.path.join(os.path.expanduser('~'), '.kitetdx', 'tdx')
 
 
 def get_last_trading_day(date=None):
@@ -77,6 +92,10 @@ class Reader(object):
         if market == 'ext':
             return ExtReader(**kwargs)
 
+        # 优先从 kwargs 获取 tdxdir，没有则读环境变量，最后取默认值
+        tdxdir = kwargs.get('tdxdir') or os.environ.get('TDXDIR') or get_default_tdx_dir()
+        kwargs['tdxdir'] = tdxdir
+        
         return StdReader(**kwargs)
 
 
@@ -91,7 +110,7 @@ class Block:
 
 class ReaderBase(ABC):
     # 默认通达信安装目录
-    tdxdir = 'C:/new_tdx'
+    tdxdir = get_default_tdx_dir()
 
     def __init__(self, tdxdir=None):
         """
@@ -100,8 +119,8 @@ class ReaderBase(ABC):
         :param tdxdir: 通达信安装目录
         """
 
-        if not Path(tdxdir).is_dir():
-            raise Exception('tdxdir 目录不存在')
+        if not Path(tdxdir).exists():
+            Path(tdxdir).mkdir(parents=True, exist_ok=True)
 
         self.tdxdir = tdxdir
 
@@ -462,22 +481,36 @@ class StdReader(ReaderBase):
                     
                 parts = line.split('|')
                 # 格式: 银行|880471|2|1|1|T1001
+                # parts[4] -> 0: 通达信行业, 1: 一级行业, 2: 二级行业
                 if len(parts) >= 6:
                     industry_name = parts[0]
                     # block_code = parts[1] # 88xxxx
                     block_code = parts[1]
-                    level = parts[2] 
                     
-                    # T代码，如 T1001
-                    industry_code = parts[5]
-                    
-                    if industry_code.startswith('T'):
-                        data.append({
-                            'industry_name': industry_name,
-                            'industry_code': industry_code, # T代码
-                            'block_code': block_code,       # 88开头代码
-                            'level_type': level
-                        })
+                # industry_code (T代码 or X代码)
+                industry_code = parts[5]
+                
+                # 用户要求 1级行业、2级行业对应。根据深度映射：
+                # T代码: Len 3 -> L0, Len 5 -> L1, Len 7 -> L2
+                # X代码: Len 3 -> L1, Len 5 -> L2, Len 7 -> L3
+                level = "0"
+                code_len = len(industry_code)
+                if industry_code.startswith('T'):
+                    if code_len == 5: level = "1"
+                    elif code_len >= 7: level = "2"
+                    elif code_len == 3: level = "0"
+                elif industry_code.startswith('X'):
+                    if code_len == 3: level = "1"
+                    elif code_len == 5: level = "2"
+                    elif code_len >= 7: level = "3"
+
+                if industry_code.startswith('T') or industry_code.startswith('X'):
+                    data.append({
+                        'industry_name': industry_name,
+                        'industry_code': industry_code,
+                        'block_code': block_code,
+                        'level_type': level
+                    })
                         
             return pd.DataFrame(data)
 
@@ -514,11 +547,13 @@ class StdReader(ReaderBase):
                 if len(parts) >= 3:
                     stock_code = parts[1]
                     industry_code = parts[2] # T代码
+                    industry_code_x = parts[5] if len(parts) > 5 else '' # 可能是 X代码 (SWS)
                     
-                    if industry_code:
+                    if industry_code or industry_code_x:
                         data.append({
                             'stock_code': stock_code,
-                            'industry_code': industry_code
+                            'industry_code': industry_code,
+                            'industry_code_x': industry_code_x
                         })
             
             return pd.DataFrame(data)
@@ -527,23 +562,44 @@ class StdReader(ReaderBase):
             logger.error(f"解析 tdxhy.cfg 失败: {e}")
             return pd.DataFrame()
 
-    def get_industries(self, source='tdx'):
+    def get_industries(self, source='tdx', **kwargs):
         """
         获取行业列表
         :param source: 数据源，默认 'tdx'
+        :param kwargs: level (1 或 2，对应一级/二级行业)
         :return: pd.DataFrame
         """
+        level = kwargs.get('level', 1)
+        
+        # 仅支持一级行业 (1) 和 二级行业 (2)
+        if level not in [1, 2]:
+            logger.warning(f"不支持的行业级别: {level}，目前仅支持 1 (一级行业) 或 2 (二级行业)")
+            return pd.DataFrame()
+            
+        if source == 'sws':
+            from .sws import SwsReader
+            return SwsReader().get_industries(level=level, return_df=True)
+            
         if source == 'tdx':
-            return self._parse_industry_config()
+            df = self._parse_industry_config()
+            if not df.empty:
+                # TDX Level Mapping: 1: 一级行业, 2: 二级行业
+                return df[df['level_type'] == str(level)]
+            return df
+            
         return pd.DataFrame()
 
-    def get_industry_stocks(self, industry_code, source='tdx'):
+    def get_industry_stocks(self, industry_code, source='tdx', **kwargs):
         """
         获取指定行业的成分股
         :param industry_code: 行业代码 (如 'T1001', '880471', 或名称 '银行')
         :param source: 数据源，默认 'tdx'
         :return: list[str] 股票代码列表
         """
+        if source == 'sws':
+            from .sws import SwsReader
+            return SwsReader().get_industry_stocks(industry_code)
+
         if source != 'tdx':
             return []
             
@@ -574,13 +630,17 @@ class StdReader(ReaderBase):
         stocks = map_df[map_df['industry_code'].str.startswith(target_code)]['stock_code'].tolist()
         return stocks
 
-    def get_stock_industry(self, stock_code, source='tdx'):
+    def get_stock_industry(self, stock_code, source='tdx', **kwargs):
         """
         获取股票所属行业
         :param stock_code: 股票代码
         :param source: 数据源，默认 'tdx'
         :return: dict 行业信息 {'industry_code': ..., 'industry_name': ...}
         """
+        if source == 'sws':
+            from .sws import SwsReader
+            return SwsReader().get_stock_industry(stock_code)
+
         if source != 'tdx':
             return None
             
@@ -595,41 +655,80 @@ class StdReader(ReaderBase):
         if row.empty:
             return None
             
-        ind_code = row['industry_code'].iloc[0]
+        # 提取所有相关的行业代码 (T代码, X代码)
+        rec = row.iloc[0]
+        # 优先使用 T代码 (通达信原生行业代码)
+        codes = [rec['industry_code'], rec['industry_code_x']]
+        codes = [c for c in codes if c] # 过滤空值
         
-        # 获取行业详细信息
-        ind_info = ind_df[ind_df['industry_code'] == ind_code]
-        info = {}
+        info = {
+            'stock_code': stock_code,
+            'stock_name': '', 
+            'l1_name': '', 'l1_code': '',
+            'l2_name': '', 'l2_code': ''
+        }
         
-        if not ind_info.empty:
-            info = ind_info.iloc[0].to_dict()
-        else:
-            info = {'industry_code': ind_code, 'industry_name': 'Unknown'}
+        # 尝试获取股票名称
+        try:
+            stocks = self.block(concept_type='GN', return_df=True)
+            if not stocks.empty:
+                s_rec = stocks[stocks['stock_code'] == stock_code]
+                if not s_rec.empty:
+                    info['stock_name'] = s_rec.iloc[0]['stock_name']
+        except:
+            pass
             
-        # 尝试获取父行业 (多级回溯)
-        # 例如: T010101 (煤炭开采) -> T0101 (煤炭) -> T01 (TDX 能源)
-        
-        current_code = ind_code
-        parent_level = 1
-        
-        while len(current_code) > 3:
-            # 7 chars -> 5 chars, 5 chars -> 3 chars
-            if len(current_code) == 7:
-                 parent_code = current_code[:5]
-            elif len(current_code) == 5:
-                 parent_code = current_code[:3]
-            else:
-                 break
-                 
-            parent_info = ind_df[ind_df['industry_code'] == parent_code]
-            if not parent_info.empty:
-                info[f'parent_industry_name_{parent_level}'] = parent_info['industry_name'].iloc[0]
-                info[f'parent_industry_code_{parent_level}'] = parent_code
-                current_code = parent_code
-                parent_level += 1
-            else:
-                break
+        # 遍历代码，尝试填充 L1/L2
+        for code in codes:
+            ind_rec = ind_df[ind_df['industry_code'] == code]
+            if ind_rec.empty:
+                continue
                 
+            cur_info = ind_rec.iloc[0]
+            level = cur_info['level_type']
+            
+            # 如果命中的是 Level 2
+            if level == '2':
+                if not info['l2_name']:
+                    info['l2_name'] = cur_info['industry_name']
+                    info['l2_code'] = code
+                
+                # 寻找父级 Level 1 (T0101 -> T01, X5001 -> X50)
+                p1_code = code[:3]
+                if len(p1_code) == 3:
+                    p_rec = ind_df[ind_df['industry_code'] == p1_code]
+                    if not p_rec.empty and not info['l1_name']:
+                        info['l1_name'] = p_rec.iloc[0]['industry_name']
+                        info['l1_code'] = p1_code
+            
+            # 如果命中的是 Level 1
+            elif level == '1':
+                if not info['l1_name']:
+                    info['l1_name'] = cur_info['industry_name']
+                    info['l1_code'] = code
+            
+            # 如果命中的是 Level 3 (仅 X代码可能)
+            elif level == '3':
+                p2_code = code[:5]
+                p1_code = code[:3]
+                
+                p2_rec = ind_df[ind_df['industry_code'] == p2_code]
+                if not p2_rec.empty and not info['l2_name']:
+                    info['l2_name'] = p2_rec.iloc[0]['industry_name']
+                    info['l2_code'] = p2_code
+                
+                p1_rec = ind_df[ind_df['industry_code'] == p1_code]
+                if not p1_rec.empty and not info['l1_name']:
+                    info['l1_name'] = p1_rec.iloc[0]['industry_name']
+                    info['l1_code'] = p1_code
+
+        # 如果最终还是空，尝试捕获第一个代码信息填充 l1
+        if not info['l1_name'] and not info['l2_name'] and codes:
+            first_ind = ind_df[ind_df['industry_code'] == codes[0]]
+            if not first_ind.empty:
+                info['l1_name'] = first_ind.iloc[0]['industry_name']
+                info['l1_code'] = codes[0]
+
         return info
 
 
