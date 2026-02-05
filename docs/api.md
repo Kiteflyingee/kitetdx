@@ -14,7 +14,8 @@
 - [Reader (离线读取)](#reader-离线读取)
   - [初始化](#reader-初始化)
   - [数据读取](#reader-数据读取)
-  - [板块数据](#reader-板块数据)
+  - [概念、风格](#reader-概念、风格)
+  - [行业数据](#reader-行业数据)
 - [Affair (财务文件)](#affair-财务文件)
 
 ---
@@ -359,7 +360,7 @@ date
 
 ---
 
-### Reader 板块数据
+### Reader 概念、风格
 
 #### `block(concept_type=None)`
 
