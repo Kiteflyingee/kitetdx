@@ -438,6 +438,201 @@ class StdReader(ReaderBase):
         return df
 
 
+    def _parse_industry_config(self):
+        """
+        解析行业配置文件 tdxzs3.cfg
+        返回: pd.DataFrame
+        """
+        file_path = Path(self.tdxdir) / 'T0002' / 'hq_cache' / 'tdxzs3.cfg'
+        data = []
+        
+        if not file_path.exists():
+            return pd.DataFrame()
+            
+        try:
+            # tdxzs3.cfg 通常使用 GBK 编码
+            with open(file_path, 'r', encoding='gbk', errors='ignore') as f:
+                content = f.read()
+                
+            lines = content.split('\n')
+            for line in lines:
+                line = line.strip()
+                if not line:
+                    continue
+                    
+                parts = line.split('|')
+                # 格式: 银行|880471|2|1|1|T1001
+                if len(parts) >= 6:
+                    industry_name = parts[0]
+                    # block_code = parts[1] # 88xxxx
+                    block_code = parts[1]
+                    level = parts[2] 
+                    
+                    # T代码，如 T1001
+                    industry_code = parts[5]
+                    
+                    if industry_code.startswith('T'):
+                        data.append({
+                            'industry_name': industry_name,
+                            'industry_code': industry_code, # T代码
+                            'block_code': block_code,       # 88开头代码
+                            'level_type': level
+                        })
+                        
+            return pd.DataFrame(data)
+
+        except Exception as e:
+            logger.error(f"解析 tdxzs3.cfg 失败: {e}")
+            return pd.DataFrame()
+
+    def _parse_stock_industry_mapping(self):
+        """
+        解析股票-行业映射文件 tdxhy.cfg
+        返回: pd.DataFrame (columns: stock_code, industry_code)
+        """
+        file_path = Path(self.tdxdir) / 'T0002' / 'hq_cache' / 'tdxhy.cfg'
+        data = []
+        
+        if not file_path.exists():
+            return pd.DataFrame()
+
+        try:
+            # 优先尝试 GBK 读取
+            lines = []
+            try:
+                with open(file_path, 'r', encoding='gbk', errors='ignore') as f:
+                    lines = f.readlines()
+            except:
+                lines = read_data(file_path)
+
+            for line in lines:
+                line = line.strip()
+                if not line:
+                    continue
+                    
+                parts = line.split('|')
+                if len(parts) >= 3:
+                    stock_code = parts[1]
+                    industry_code = parts[2] # T代码
+                    
+                    if industry_code:
+                        data.append({
+                            'stock_code': stock_code,
+                            'industry_code': industry_code
+                        })
+            
+            return pd.DataFrame(data)
+            
+        except Exception as e:
+            logger.error(f"解析 tdxhy.cfg 失败: {e}")
+            return pd.DataFrame()
+
+    def get_industries(self, source='tdx'):
+        """
+        获取行业列表
+        :param source: 数据源，默认 'tdx'
+        :return: pd.DataFrame
+        """
+        if source == 'tdx':
+            return self._parse_industry_config()
+        return pd.DataFrame()
+
+    def get_industry_stocks(self, industry_code, source='tdx'):
+        """
+        获取指定行业的成分股
+        :param industry_code: 行业代码 (如 'T1001', '880471', 或名称 '银行')
+        :param source: 数据源，默认 'tdx'
+        :return: list[str] 股票代码列表
+        """
+        if source != 'tdx':
+            return []
+            
+        ind_df = self._parse_industry_config()
+        map_df = self._parse_stock_industry_mapping()
+        
+        if ind_df.empty or map_df.empty:
+            return []
+            
+        # 查找匹配的 industry_code (支持 T代码, Block代码, 名称)
+        target_code = None
+        
+        # 1. 尝试直接匹配 T代码
+        if industry_code in ind_df['industry_code'].values:
+            target_code = industry_code
+        # 2. 尝试匹配 Block代码 (88xxxx)
+        elif industry_code in ind_df['block_code'].values:
+            target_code = ind_df[ind_df['block_code'] == industry_code]['industry_code'].iloc[0]
+        # 3. 尝试匹配 名称
+        elif industry_code in ind_df['industry_name'].values:
+            target_code = ind_df[ind_df['industry_name'] == industry_code]['industry_code'].iloc[0]
+            
+        if not target_code:
+            logger.warning(f"未找到行业: {industry_code}")
+            return []
+            
+        # 筛选股票 - 前缀匹配以支持父行业查询 (e.g. T10 金融 -> T1001 银行, T1002 证券)
+        stocks = map_df[map_df['industry_code'].str.startswith(target_code)]['stock_code'].tolist()
+        return stocks
+
+    def get_stock_industry(self, stock_code, source='tdx'):
+        """
+        获取股票所属行业
+        :param stock_code: 股票代码
+        :param source: 数据源，默认 'tdx'
+        :return: dict 行业信息 {'industry_code': ..., 'industry_name': ...}
+        """
+        if source != 'tdx':
+            return None
+            
+        map_df = self._parse_stock_industry_mapping()
+        ind_df = self._parse_industry_config()
+        
+        if map_df.empty or ind_df.empty:
+            return None
+            
+        # 查找股票的行业代码
+        row = map_df[map_df['stock_code'] == stock_code]
+        if row.empty:
+            return None
+            
+        ind_code = row['industry_code'].iloc[0]
+        
+        # 获取行业详细信息
+        ind_info = ind_df[ind_df['industry_code'] == ind_code]
+        info = {}
+        
+        if not ind_info.empty:
+            info = ind_info.iloc[0].to_dict()
+        else:
+            info = {'industry_code': ind_code, 'industry_name': 'Unknown'}
+            
+        # 尝试获取父行业 (多级回溯)
+        # 例如: T010101 (煤炭开采) -> T0101 (煤炭) -> T01 (TDX 能源)
+        
+        current_code = ind_code
+        parent_level = 1
+        
+        while len(current_code) > 3:
+            # 7 chars -> 5 chars, 5 chars -> 3 chars
+            if len(current_code) == 7:
+                 parent_code = current_code[:5]
+            elif len(current_code) == 5:
+                 parent_code = current_code[:3]
+            else:
+                 break
+                 
+            parent_info = ind_df[ind_df['industry_code'] == parent_code]
+            if not parent_info.empty:
+                info[f'parent_industry_name_{parent_level}'] = parent_info['industry_name'].iloc[0]
+                info[f'parent_industry_code_{parent_level}'] = parent_code
+                current_code = parent_code
+                parent_level += 1
+            else:
+                break
+                
+        return info
+
+
 class ExtReader(ReaderBase):
     """扩展市场读取"""
 

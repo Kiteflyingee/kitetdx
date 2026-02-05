@@ -395,6 +395,49 @@ lithium_stocks = blocks[blocks['concept_name'] == '锂电池']
 2   3           FG         高价股       880801     600519      贵州茅台
 ```
 
+
+---
+
+### Reader 行业数据
+
+#### `get_industries(source='tdx')`
+
+获取通达信行业分类列表。
+
+| 参数 | 类型 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- |
+| `source` | str | `'tdx'` | 数据源 (目前仅支持 'tdx') |
+
+**返回**: `pd.DataFrame`
+
+**列说明**:
+- `industry_name`: 行业名称
+- `industry_code`: 行业代码 (T开头)
+- `block_code`: 板块代码 (88xxxx)
+- `level_type`: 级别 (2=二级行业)
+
+#### `get_industry_stocks(industry_code, source='tdx')`
+
+获取指定行业的成分股列表。
+
+| 参数 | 类型 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- |
+| `industry_code` | str | - | 行业代码 (Txxxx)、板块代码 (88xxxx) 或行业名称 |
+| `source` | str | `'tdx'` | 数据源 |
+
+**返回**: `list[str]` (股票代码列表)
+
+#### `get_stock_industry(stock_code, source='tdx')`
+
+获取股票所属行业信息。
+
+| 参数 | 类型 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- |
+| `stock_code` | str | - | 股票代码 |
+| `source` | str | `'tdx'` | 数据源 |
+
+**返回**: `dict` (包含 industry_code, industry_name, parent_industry_name_x 等)
+
 ---
 
 ## Affair (财务文件)
