@@ -1,5 +1,8 @@
 site_name: Kitetdx
 site_description: 基于 Mootdx 的二次封装与扩展
+repo_url: https://github.com/Kiteflyingee/kitetdx
+repo_name: Kiteflyingee/kitetdx
+edit_uri: edit/master/docs/
 
 theme:
   name: material
