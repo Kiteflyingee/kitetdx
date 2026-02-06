@@ -1195,17 +1195,14 @@ stocks_sws = reader.get_industry_stocks('银行', source='sws')
 </table>
 <p><strong>统一返回格式 (Standardized Return)</strong>:</p>
 <pre><code class="language-python">{
-    'stock_code': '600036',
-    'stock_name': '招商银行',
-    'l1_name': '银行',
-    'l1_code': 'T1001',      # 或 SWS 编码前两位
-    'l2_name': '股份制银行',  # 对应二级行业名称
-    'l2_code': 'T100101'     # 或 SWS 编码前四位
+    'industry': '银行',          # 一级行业名称
+    'industry_code': '48',       # 一级行业代码
+    'sub_industry': '股份制银行'  # 二级行业名称
 }
 </code></pre>
 <blockquote>
 <p>[!TIP]
-该方法会自动合并多级行业信息，确保同时返回一级 (<code>l1</code>) 和二级 (<code>l2</code>) 行业的名称与代码。</p>
+该方法会自动合并多级行业信息，确保同时返回一级行业名称、代码和二级行业名称。</p>
 </blockquote>
 <h3 id="swsreader-reader">SwsReader 申万行业（已弃用，可以调用Reader行业数据函数传递参数获取申万行业数据）<a class="headerlink" href="#swsreader-reader" title="Permanent link">&para;</a></h3>
 <h4 id="__init__auto_downloadtrue-force_updatefalse"><code>__init__(auto_download=True, force_update=False)</code><a class="headerlink" href="#__init__auto_downloadtrue-force_updatefalse" title="Permanent link">&para;</a></h4>
