@@ -31,18 +31,18 @@ class SwsReader:
                     try:
                         mtime = os.path.getmtime(stock_file)
                         if time.time() - mtime > 90 * 86400:
-                            print(f"[SWS] Cache expired (older than 90 days). Updating...")
+                            print(f"[SWS] 缓存已过期 (超过 90 天)，正在更新...")
                             need_update = True
                     except OSError:
                          need_update = True
         
         if need_update:
             if auto_download:
-                print("[SWS] Downloading/Updating SWS data...")
+                print("[SWS] 正在下载/更新申万行业数据... (请耐心等待)")
                 download_sws_data(self.cache_dir)
             elif not self._find_stock_file():
                 # Only raise if we don't have ANY data
-                raise FileNotFoundError(f"SWS data not found in {self.cache_dir}")
+                raise FileNotFoundError(f"未在 {self.cache_dir} 找到申万数据")
 
         self.df = self._load_data()
 
@@ -59,7 +59,7 @@ class SwsReader:
         """Load and normalize the data."""
         filepath = self._find_stock_file()
         if not filepath:
-            raise FileNotFoundError("SWS stock classification file not found.")
+            raise FileNotFoundError("未找到个股申万行业分类文件")
             
         # Read Excel
         # Columns: ['交易所', '行业代码', '股票代码', '公司简称', '新版一级行业', '新版二级行业', '新版三级行业']
@@ -131,7 +131,7 @@ class SwsReader:
         Get list of industries. 
         """
         if level not in [1, 2]:
-            logger.warning(f"Unsupported SWS level: {level}. Only levels 1 and 2 are supported.")
+            logger.warning(f"不支持的申万行业级别: {level}。仅支持 1 和 2 级。")
             return pd.DataFrame() if return_df else []
 
         col = f'l{level}_name'

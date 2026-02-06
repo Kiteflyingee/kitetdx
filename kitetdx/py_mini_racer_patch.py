@@ -19,8 +19,7 @@ try:
     import quickjs
 except ImportError:
     raise ImportError(
-        "quickjs is required for M1 compatibility. "
-        "Please install it: pip install quickjs"
+        "M1 芯片兼容性需要 quickjs。请安装: pip install quickjs"
     )
 
 
@@ -146,4 +145,4 @@ class _FakePyMiniRacer:
 _fake_module = _FakePyMiniRacer()
 sys.modules['py_mini_racer'] = _fake_module
 
-print("[py_mini_racer_patch] Successfully patched py_mini_racer with quickjs backend")
+print("[py_mini_racer_patch] 成功使用 quickjs 后端修复 py_mini_racer 兼容性")

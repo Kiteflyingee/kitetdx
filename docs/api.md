@@ -265,7 +265,7 @@ stocks_sws = reader.get_industry_stocks('银行', source='sws')
 > 该方法会自动合并多级行业信息，确保同时返回一级 (`l1`) 和二级 (`l2`) 行业的名称与代码。
 
 
-### SwsReader 申万行业
+### SwsReader 申万行业（已弃用，可以调用Reader行业数据函数传递参数获取申万行业数据）
 
 #### `__init__(auto_download=True, force_update=False)`
 

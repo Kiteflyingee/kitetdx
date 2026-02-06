@@ -111,6 +111,15 @@ class Block:
 class ReaderBase(ABC):
     # 默认通达信安装目录
     tdxdir = get_default_tdx_dir()
+    _sws_reader = None
+
+    @property
+    def sws_reader(self):
+        """Lazy-loaded SwsReader instance"""
+        if self._sws_reader is None:
+            from .sws import SwsReader
+            self._sws_reader = SwsReader()
+        return self._sws_reader
 
     def __init__(self, tdxdir=None):
         """
@@ -215,7 +224,7 @@ class StdReader(ReaderBase):
             # 因为上面的逻辑已经很精细地控制了 need_download
             
             if should_download:
-                logger.info("未找到数据目录或数据过期，开始下载...")
+                print("未找到数据目录或数据过期，开始下载... (请耐心等待)")
                 
                 try:
                     downloader = TdxSeleniumDownloader(self.tdxdir)
@@ -577,8 +586,7 @@ class StdReader(ReaderBase):
             return pd.DataFrame()
             
         if source == 'sws':
-            from .sws import SwsReader
-            return SwsReader().get_industries(level=level, return_df=True)
+            return self.sws_reader.get_industries(level=level, return_df=True)
             
         if source == 'tdx':
             df = self._parse_industry_config()
@@ -597,8 +605,7 @@ class StdReader(ReaderBase):
         :return: list[str] 股票代码列表
         """
         if source == 'sws':
-            from .sws import SwsReader
-            return SwsReader().get_industry_stocks(industry_code)
+            return self.sws_reader.get_industry_stocks(industry_code)
 
         if source != 'tdx':
             return []
@@ -638,8 +645,7 @@ class StdReader(ReaderBase):
         :return: dict 行业信息 {'industry_code': ..., 'industry_name': ...}
         """
         if source == 'sws':
-            from .sws import SwsReader
-            return SwsReader().get_stock_industry(stock_code)
+            return self.sws_reader.get_stock_industry(stock_code)
 
         if source != 'tdx':
             return None

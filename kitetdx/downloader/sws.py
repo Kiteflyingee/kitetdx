@@ -26,7 +26,7 @@ def download_sws_data(cache_dir=None, verbose=True):
         cache_dir = get_default_cache_dir()
     
     if verbose:
-        print(f"[SWS] Cache directory: {cache_dir}")
+        print(f"[SWS] 缓存目录: {cache_dir}")
         
     os.makedirs(cache_dir, exist_ok=True)
     
@@ -34,7 +34,7 @@ def download_sws_data(cache_dir=None, verbose=True):
     
     # 1. Download
     if verbose:
-        print(f"[SWS] Downloading {SWS_RAR_URL}...")
+        print(f"[SWS] 正在下载 {SWS_RAR_URL}...")
         
     try:
         headers = {
@@ -48,10 +48,10 @@ def download_sws_data(cache_dir=None, verbose=True):
                 f.write(chunk)
                 
         if verbose:
-            print("[SWS] Download complete.")
+            print("[SWS] 下载完成。")
             
     except Exception as e:
-        print(f"[SWS] Download failed: {e}")
+        print(f"[SWS] 下载失败: {e}")
         return False
 
     # 2. Extract
@@ -59,7 +59,7 @@ def download_sws_data(cache_dir=None, verbose=True):
     # Since dependency analysis showed 'bsdtar' is available, we prioritize standard tools.
     
     if verbose:
-        print(f"[SWS] Extracting {rar_path}...")
+        print(f"[SWS] 正在解压 {rar_path}...")
         
     extracted = False
     
@@ -81,11 +81,11 @@ def download_sws_data(cache_dir=None, verbose=True):
 
     if extracted:
         if verbose:
-            print("[SWS] Extraction complete.")
+            print("[SWS] 解压缩完成。")
         return True
     else:
-        print("[SWS] Extraction failed. Please install 'unrar' or 'bsdtar' (libarchive).")
-        print(f"[SWS] You can manually extract {rar_path} to {cache_dir}")
+        print("[SWS] 解压缩失败。请安装 'unrar' 或 'bsdtar' (libarchive)。")
+        print(f"[SWS] 您可以手动将 {rar_path} 解压缩到 {cache_dir}")
         return False
 
 if __name__ == "__main__":
