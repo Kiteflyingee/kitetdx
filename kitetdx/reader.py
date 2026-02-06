@@ -518,9 +518,9 @@ class StdReader(ReaderBase):
                     elif code_len >= 7: level = "2"
                     elif code_len == 3: level = "0"
                 elif industry_code.startswith('X'):
+                    # Sws codes handled separately, but same logic applies for X codes in tdxzs3
                     if code_len == 3: level = "1"
                     elif code_len == 5: level = "2"
-                    elif code_len >= 7: level = "3"
 
                 if industry_code.startswith('T') or industry_code.startswith('X'):
                     data.append({
@@ -690,33 +690,49 @@ class StdReader(ReaderBase):
             cur_info = ind_rec.iloc[0]
             level = cur_info['level_type']
             
+            # Level 0 (T11 etc) is ignored
+            if level == '0':
+                continue
+            
             # 如果命中的是 Level 2
             if level == '2':
                 if not info['sub_industry']:
                     info['sub_industry'] = cur_info['industry_name']
                 
-                # 寻找父级 Level 1 (T0101 -> T01, X5001 -> X50)
-                p1_code = code[:3]
-                if len(p1_code) == 3:
+                # 寻找父级 Level 1 (T0101 -> T0101 -> T01 (x) -> T1001 )
+                # Need to find parent carefully. 
+                # For T code: L2 (7 chars) -> L1 (5 chars)
+                if code.startswith('T') and len(code) >= 7:
+                    p1_code = code[:5]
                     p_rec = ind_df[ind_df['industry_code'] == p1_code]
                     if not p_rec.empty and not info['industry']:
                         info['industry'] = p_rec.iloc[0]['industry_name']
                         info['industry_code'] = p1_code
-            
+                
+                # For X code (SWS legacy in TDX): L2 (5 chars) -> L1 (3 chars)
+                elif code.startswith('X') and len(code) >= 5:
+                    p1_code = code[:3]
+                    p_rec = ind_df[ind_df['industry_code'] == p1_code]
+                    if not p_rec.empty and not info['industry']:
+                        info['industry'] = p_rec.iloc[0]['industry_name']
+                        info['industry_code'] = p1_code
+
             # 如果命中的是 Level 1
             elif level == '1':
                 if not info['industry']:
                     info['industry'] = cur_info['industry_name']
                     info['industry_code'] = code
-            
-            # Level 3 (l3) ignored as per user request
 
-        # 如果最终还是空，尝试捕获第一个代码信息填充 l1
+        # 如果最终还是空，尝试捕获第一个代码信息 (且必须是 L1)
         if not info['industry'] and not info['sub_industry'] and codes:
-            first_ind = ind_df[ind_df['industry_code'] == codes[0]]
-            if not first_ind.empty:
-                info['industry'] = first_ind.iloc[0]['industry_name']
-                info['industry_code'] = codes[0]
+             for code in codes:
+                ind_rec = ind_df[ind_df['industry_code'] == code]
+                if not ind_rec.empty:
+                    cur_info = ind_rec.iloc[0]
+                    if cur_info['level_type'] == '1':
+                        info['industry'] = cur_info['industry_name']
+                        info['industry_code'] = code
+                        break
 
         return info
 
