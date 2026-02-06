@@ -14,61 +14,51 @@ class SwsReader:
 
     def __init__(self, cache_dir=None, auto_download=True, force_update=False, **kwargs):
         self.cache_dir = cache_dir or get_default_cache_dir()
+        self.force_update = force_update
         
-        # Check if update is needed
-        need_update = force_update
-        
-        if not need_update:
-            if not os.path.exists(self.cache_dir):
-                need_update = True
-            else:
-                stock_file, _ = self._find_stock_file()
-                if not stock_file:
-                    need_update = True
-                else:
-                    # Check expiration (90 days)
-                    import time
-                    try:
-                        mtime = os.path.getmtime(stock_file)
-                        if time.time() - mtime > 90 * 86400:
-                            print(f"[SWS] 缓存已过期 (超过 90 天)，正在更新...")
-                            need_update = True
-                    except OSError:
-                         need_update = True
-        
-        if need_update:
-            if auto_download:
-                print("[SWS] 正在下载/更新申万行业数据... (请耐心等待)")
-                download_sws_data(self.cache_dir)
-            else:
-                stock_file, _ = self._find_stock_file()
-                if not stock_file:
-                    # Only raise if we don't have ANY data
-                    raise FileNotFoundError(f"未在 {self.cache_dir} 找到申万数据")
+        # If force_update, download new data to cache
+        if force_update and auto_download:
+            print("[SWS] 正在下载/更新申万行业数据... (请耐心等待)")
+            download_sws_data(self.cache_dir)
 
         self.df = self._load_data()
 
-    def _find_stock_file(self):
-        """Find the required SWS excel files."""
-        stock_file = os.path.join(self.cache_dir, "StockClassifyUse_stock.xls")
-        class_file = os.path.join(self.cache_dir, "SwClassCode_2021.xls")
+    def _find_stock_file(self, use_cache=False):
+        """Find the required SWS excel files.
         
-        if os.path.exists(stock_file) and os.path.exists(class_file):
-            return stock_file, class_file
+        Priority:
+        1. If use_cache=True, look in cache_dir first
+        2. Otherwise, use built-in data files from kitetdx/data
+        """
+        # Built-in data directory (packaged with the library)
+        builtin_dir = os.path.join(os.path.dirname(__file__), 'data')
         
-        # Fallback to old pattern if new files not found
-        pattern = os.path.join(self.cache_dir, "*个股申万行业分类*.xlsx")
-        files = glob.glob(pattern)
-        if files:
-            return files[0], None
+        # Define search directories based on use_cache flag
+        search_dirs = [self.cache_dir, builtin_dir] if use_cache else [builtin_dir, self.cache_dir]
+        
+        for search_dir in search_dirs:
+            if not os.path.exists(search_dir):
+                continue
+                
+            stock_file = os.path.join(search_dir, "StockClassifyUse_stock.xls")
+            
+            # Fuzzy search for SwClassCode (year may change)
+            class_pattern = os.path.join(search_dir, "SwClassCode_*.xls")
+            class_files = glob.glob(class_pattern)
+            class_file = class_files[0] if class_files else None
+            
+            if os.path.exists(stock_file) and class_file:
+                return stock_file, class_file
             
         return None, None
 
     def _load_data(self):
         """Load and normalize the data."""
-        stock_file, class_file = self._find_stock_file()
+        # If force_update, prioritize cache (newly downloaded); otherwise use built-in
+        stock_file, class_file = self._find_stock_file(use_cache=self.force_update)
         if not stock_file:
             raise FileNotFoundError("未找到申万行业分类文件")
+
             
         if class_file:
             # 1. Read Stock mappings
