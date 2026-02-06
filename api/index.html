@@ -1092,6 +1092,19 @@ lithium_stocks = blocks[blocks['concept_name'] == '锂电池']
 </code></pre>
 <hr />
 <h3 id="reader_4">Reader 行业数据<a class="headerlink" href="#reader_4" title="Permanent link">&para;</a></h3>
+<h4 id="update_sws_data"><code>update_sws_data()</code><a class="headerlink" href="#update_sws_data" title="Permanent link">&para;</a></h4>
+<p>手动更新申万 (SWS) 行业分类数据。</p>
+<p>默认情况下，Reader 使用内置的申万行业数据。如果需要获取最新的行业分类信息，可调用此方法从网络下载最新数据。</p>
+<p><strong>调用示例</strong>:</p>
+<pre><code class="language-python">reader = Reader.factory()
+
+# 更新申万行业数据
+reader.update_sws_data()
+
+# 使用最新数据
+info = reader.get_stock_industry('000001', source='sws')
+</code></pre>
+<hr />
 <h4 id="get_industriessourcetdx-kwargs"><code>get_industries(source='tdx', **kwargs)</code><a class="headerlink" href="#get_industriessourcetdx-kwargs" title="Permanent link">&para;</a></h4>
 <p>获取行业分类列表。</p>
 <table>
