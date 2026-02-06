@@ -22,7 +22,7 @@ class SwsReader:
             if not os.path.exists(self.cache_dir):
                 need_update = True
             else:
-                stock_file = self._find_stock_file()
+                stock_file, _ = self._find_stock_file()
                 if not stock_file:
                     need_update = True
                 else:
@@ -40,45 +40,87 @@ class SwsReader:
             if auto_download:
                 print("[SWS] 正在下载/更新申万行业数据... (请耐心等待)")
                 download_sws_data(self.cache_dir)
-            elif not self._find_stock_file():
-                # Only raise if we don't have ANY data
-                raise FileNotFoundError(f"未在 {self.cache_dir} 找到申万数据")
+            else:
+                stock_file, _ = self._find_stock_file()
+                if not stock_file:
+                    # Only raise if we don't have ANY data
+                    raise FileNotFoundError(f"未在 {self.cache_dir} 找到申万数据")
 
         self.df = self._load_data()
 
     def _find_stock_file(self):
-        """Find the stock classification excel file."""
-        # Pattern: *个股申万行业分类*.xlsx (Fuzzy match for changing date suffix)
+        """Find the required SWS excel files."""
+        stock_file = os.path.join(self.cache_dir, "StockClassifyUse_stock.xls")
+        class_file = os.path.join(self.cache_dir, "SwClassCode_2021.xls")
+        
+        if os.path.exists(stock_file) and os.path.exists(class_file):
+            return stock_file, class_file
+        
+        # Fallback to old pattern if new files not found
         pattern = os.path.join(self.cache_dir, "*个股申万行业分类*.xlsx")
         files = glob.glob(pattern)
         if files:
-            return files[0]
-        return None
+            return files[0], None
+            
+        return None, None
 
     def _load_data(self):
         """Load and normalize the data."""
-        filepath = self._find_stock_file()
-        if not filepath:
-            raise FileNotFoundError("未找到个股申万行业分类文件")
+        stock_file, class_file = self._find_stock_file()
+        if not stock_file:
+            raise FileNotFoundError("未找到申万行业分类文件")
             
-        # Read Excel
-        # Columns: ['交易所', '行业代码', '股票代码', '公司简称', '新版一级行业', '新版二级行业', '新版三级行业']
-        df = pd.read_excel(filepath, dtype={'行业代码': str, '股票代码': str})
-        
-        # Normalize columns
-        df = df.rename(columns={
-            '股票代码': 'stock_code',
-            '公司简称': 'stock_name',
-            '行业代码': 'industry_code',
-            '新版一级行业': 'l1_name',
-            '新版二级行业': 'l2_name',
-            '新版三级行业': 'l3_name'
-        })
-        
-        # Clean stock_code (remove .SH, .SZ suffix)
-        df['stock_code'] = df['stock_code'].astype(str).str.split('.').str[0]
-        
-        return df
+        if class_file:
+            # 1. Read Stock mappings
+            # Columns: ['股票代码', '计入日期', '行业代码', '更新日期']
+            df_stock = pd.read_excel(stock_file, dtype={'股票代码': str, '行业代码': str})
+            
+            # Normalize stock_code to 6 digits
+            df_stock['股票代码'] = df_stock['股票代码'].str.zfill(6)
+            
+            # Sort by date and keep latest
+            df_stock = df_stock.sort_values('计入日期', ascending=True)
+            df_stock = df_stock.drop_duplicates('股票代码', keep='last')
+            
+            # 2. Read Industry Class codes
+            # Columns: ['行业代码', '一级行业名称', '二级行业名称', '三级行业名称']
+            df_class = pd.read_excel(class_file, dtype={'行业代码': str})
+            
+            # 3. Merge
+            df = pd.merge(df_stock, df_class, on='行业代码', how='left')
+            
+            # 4. Normalize columns
+            df = df.rename(columns={
+                '股票代码': 'stock_code',
+                '行业代码': 'industry_code',
+                '一级行业名称': 'l1_name',
+                '二级行业名称': 'l2_name'
+            })
+            
+            # 5. Handle missing L2
+            # Use fillna for L2 name
+            df['l2_name'] = df['l2_name'].fillna('无二级行业')
+            
+            # Note: stock_name might be missing in this source, we might need to get it elsewhere if needed
+            # For now, just set it to empty if not present
+            if '公司简称' in df.columns:
+                df = df.rename(columns={'公司简称': 'stock_name'})
+            else:
+                df['stock_name'] = ''
+                
+            return df
+        else:
+            # Old implementation for .xlsx file
+            df = pd.read_excel(stock_file, dtype={'行业代码': str, '股票代码': str})
+            df = df.rename(columns={
+                '股票代码': 'stock_code',
+                '公司简称': 'stock_name',
+                '行业代码': 'industry_code',
+                '新版一级行业': 'l1_name',
+                '新版二级行业': 'l2_name'
+            })
+            df['stock_code'] = df['stock_code'].astype(str).str.split('.').str[0].str.zfill(6)
+            return df
 
     def block(self, concept_type='1', return_df=False):
         """
@@ -88,7 +130,7 @@ class SwsReader:
         :return: list[Block] or pd.DataFrame
         """
         level = str(concept_type).lower().replace('l', '')
-        if level not in ['1', '2', '3']:
+        if level not in ['1', '2']:
             level = '1'
 
         col = f'l{level}_name'
@@ -159,20 +201,23 @@ class SwsReader:
     def get_stock_industry(self, stock_code):
         """
         Get industry info for a stock (mapped to Level 1 and 2).
+        Returns: dict with l1_name, l1_code, l2_name
         """
-        row = self.df[self.df['stock_code'] == str(stock_code)]
+        # Ensure stock_code is 6-digit string
+        target_code = str(stock_code).split('.')[0].zfill(6)
+        
+        row = self.df[self.df['stock_code'] == target_code]
         if row.empty:
             return None
         
         # Return the first match
         rec = row.iloc[0]
-        code = rec['industry_code'] # Example: 480301
+        code = str(rec['industry_code']) # Example: 480301
         
+        l1_code = code[:2] if len(code) >= 2 else ''
+            
         return {
-            'stock_code': rec['stock_code'],
-            'stock_name': rec['stock_name'],
-            'l1_name': rec['l1_name'],
-            'l1_code': code[:2] if len(code) >= 2 else '',
-            'l2_name': rec['l2_name'],
-            'l2_code': code[:4] if len(code) >= 4 else ''
+            'industry': rec['l1_name'],
+            'industry_code': l1_code,
+            'sub_industry': rec['l2_name']
         }

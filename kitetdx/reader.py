@@ -668,22 +668,10 @@ class StdReader(ReaderBase):
         codes = [c for c in codes if c] # 过滤空值
         
         info = {
-            'stock_code': stock_code,
-            'stock_name': '', 
-            'l1_name': '', 'l1_code': '',
-            'l2_name': '', 'l2_code': ''
+            'industry': '', 'industry_code': '',
+            'sub_industry': ''
         }
         
-        # 尝试获取股票名称
-        try:
-            stocks = self.block(concept_type='GN', return_df=True)
-            if not stocks.empty:
-                s_rec = stocks[stocks['stock_code'] == stock_code]
-                if not s_rec.empty:
-                    info['stock_name'] = s_rec.iloc[0]['stock_name']
-        except:
-            pass
-            
         # 遍历代码，尝试填充 L1/L2
         for code in codes:
             ind_rec = ind_df[ind_df['industry_code'] == code]
@@ -695,45 +683,31 @@ class StdReader(ReaderBase):
             
             # 如果命中的是 Level 2
             if level == '2':
-                if not info['l2_name']:
-                    info['l2_name'] = cur_info['industry_name']
-                    info['l2_code'] = code
+                if not info['sub_industry']:
+                    info['sub_industry'] = cur_info['industry_name']
                 
                 # 寻找父级 Level 1 (T0101 -> T01, X5001 -> X50)
                 p1_code = code[:3]
                 if len(p1_code) == 3:
                     p_rec = ind_df[ind_df['industry_code'] == p1_code]
-                    if not p_rec.empty and not info['l1_name']:
-                        info['l1_name'] = p_rec.iloc[0]['industry_name']
-                        info['l1_code'] = p1_code
+                    if not p_rec.empty and not info['industry']:
+                        info['industry'] = p_rec.iloc[0]['industry_name']
+                        info['industry_code'] = p1_code
             
             # 如果命中的是 Level 1
             elif level == '1':
-                if not info['l1_name']:
-                    info['l1_name'] = cur_info['industry_name']
-                    info['l1_code'] = code
+                if not info['industry']:
+                    info['industry'] = cur_info['industry_name']
+                    info['industry_code'] = code
             
-            # 如果命中的是 Level 3 (仅 X代码可能)
-            elif level == '3':
-                p2_code = code[:5]
-                p1_code = code[:3]
-                
-                p2_rec = ind_df[ind_df['industry_code'] == p2_code]
-                if not p2_rec.empty and not info['l2_name']:
-                    info['l2_name'] = p2_rec.iloc[0]['industry_name']
-                    info['l2_code'] = p2_code
-                
-                p1_rec = ind_df[ind_df['industry_code'] == p1_code]
-                if not p1_rec.empty and not info['l1_name']:
-                    info['l1_name'] = p1_rec.iloc[0]['industry_name']
-                    info['l1_code'] = p1_code
+            # Level 3 (l3) ignored as per user request
 
         # 如果最终还是空，尝试捕获第一个代码信息填充 l1
-        if not info['l1_name'] and not info['l2_name'] and codes:
+        if not info['industry'] and not info['sub_industry'] and codes:
             first_ind = ind_df[ind_df['industry_code'] == codes[0]]
             if not first_ind.empty:
-                info['l1_name'] = first_ind.iloc[0]['industry_name']
-                info['l1_code'] = codes[0]
+                info['industry'] = first_ind.iloc[0]['industry_name']
+                info['industry_code'] = codes[0]
 
         return info
 
