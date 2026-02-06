@@ -121,6 +121,15 @@ class ReaderBase(ABC):
             self._sws_reader = SwsReader()
         return self._sws_reader
 
+    def update_sws_data(self):
+        """
+        手动更新申万行业分类数据。
+        调用此方法后，SwsReader 将从网络下载最新数据并使用。
+        """
+        from .sws import SwsReader
+        self._sws_reader = SwsReader(force_update=True)
+        print("[SWS] 申万行业数据已更新完成")
+
     def __init__(self, tdxdir=None):
         """
         构造函数
