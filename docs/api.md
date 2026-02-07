@@ -47,6 +47,9 @@
 | `symbol` | str | - | 股票代码 |
 | `adjust` | str | `None` | 复权方式: `'qfq'` (前复权), `'hfq'` (后复权) |
 
+> [!IMPORTANT]
+> 该方法依赖于本地 `vipdoc/market/lday/*.day` 数据文件。 如果缺少相关数据，请先调用 `update_data()` 进行下载或手动同步。
+
 > **注意**: 该方法不再自动检查更新。如需获取最新数据，请先调用 `update_data()`。
 
 **调用示例**:
@@ -95,6 +98,9 @@ date
 | :--- | :--- | :--- | :--- |
 | `symbol` | str | - | 股票代码 |
 | `suffix` | int | `1` | 周期: `1` (1分钟), `5` (5分钟) |
+
+> [!IMPORTANT]
+> 该方法依赖于本地 `vipdoc/market/minline/*.lc1` 或 `vipdoc/market/fzline/*.lc5` 数据文件。
 
 **调用示例**:
 ```python
@@ -157,11 +163,14 @@ date
 
 #### `block(concept_type=None)`
 
-读取通达信本地板块与概念数据。
+读取通达信本地板块、概念与指数数据。
+
+> [!TIP]
+> 该方法依赖于本地通达信安装目录（`T0002/hq_cache`）下的数据文件。 如果您的 `tdxdir` 路径下没有这些文件，将无法读取到数据。
 
 | 参数 | 类型 | 默认值 | 说明 |
 | :--- | :--- | :--- | :--- |
-| `concept_type` | str | `None` | 筛选类型: `'GN'` (概念), `'FG'` (风格), `'ZS'` (指数) |
+| `concept_type` | str | `None` | 筛选下发类型: `'GN'` (概念), `'FG'` (风格), `'ZS'` (指数) |
 
 **调用示例**:
 ```python
@@ -221,6 +230,9 @@ info = reader.get_stock_industry('000001', source='sws')
 | `source` | str | `'tdx'` | 数据源: `'tdx'` (通达信), `'sws'` (申万) |
 | `level` | int | `1` | 行业级别 (1 或 2) |
 
+> [!TIP]
+> 当 `source='tdx'` 时，该方法依赖于本地通达信目录下的 `T0002/hq_cache/tdxzs3.cfg` 配置文件。
+
 **统一级别映射 (Unified Levels)**:
 | 级别 (level) | 名称 | 说明 |
 | :--- | :--- | :--- |
@@ -249,6 +261,9 @@ info = reader.get_stock_industry('000001', source='sws')
 | `industry_code` | str | - | 行业代码 (Txxxx)、板块代码 (88xxxx) 或行业名称 |
 | `source` | str | `'tdx'` | 数据源: `'tdx'`, `'sws'` |
 
+> [!TIP]
+> 当 `source='tdx'` 时，该方法需要解析 `T0002/hq_cache/tdxzs3.cfg` 和 `tdxhy.cfg` 文件。
+
 **调用示例**:
 ```python
 # 获取通达信医药行业股票
@@ -267,6 +282,9 @@ stocks_sws = reader.get_industry_stocks('银行', source='sws')
 | :--- | :--- | :--- | :--- |
 | `stock_code` | str | - | 股票代码 (如 `'600036'`) |
 | `source` | str | `'tdx'` | 数据源: `'tdx'`, `'sws'` |
+
+> [!TIP]
+> 当 `source='tdx'` 时，该方法需要解析 `T0002/hq_cache/tdxhy.cfg` 和 `tdxzs3.cfg` 文件。
 
 **统一返回格式 (Standardized Return)**:
 ```python
@@ -306,7 +324,14 @@ sws = SwsReader()
 l1 = sws.get_industries(level=1)
 ```
 
-**返回**: `list[str]` (行业名称列表, 如 `['银行', '房地产']`)
+**返回**: `pd.DataFrame` 或 `list[str]`
+
+**返回示例 (DataFrame)**:
+```python
+  industry_name industry_code level_type
+0            银行                       1
+1          房地产                       1
+```
 
 #### `get_industry_stocks(industry_name)`
 
@@ -314,6 +339,8 @@ l1 = sws.get_industries(level=1)
 
 | 参数 | 类型 | 默认值 | 说明 |
 | :--- | :--- | :--- | :--- |
+| `industry_name` | str | - | 行业名称 (如 `'银行'`) |
+
 **调用示例**:
 ```python
 bank_stocks = sws.get_industry_stocks('银行')
@@ -326,13 +353,13 @@ bank_stocks = sws.get_industry_stocks('银行')
 ['600036', '601398', ...]
 ```
 
-#### `block(concept_type='1', return_df=False)`
+#### `block(level='1', return_df=False)`
 
-获取申万板块数据。
+获取申万行业成分股 (以板块格式返回)。
 
 | 参数 | 类型 | 默认值 | 说明 |
 | :--- | :--- | :--- | :--- |
-| `concept_type` | str | `'1'` | 级别: `'1'`, `'2'`, `'3'` |
+| `level` | str | `'1'` | 行业级别: `'1'`, `'2'` |
 | `return_df` | bool | `False` | 是否返回 DataFrame |
 
 **返回**: `list[Block]` 或 `pd.DataFrame`
@@ -349,6 +376,15 @@ bank_stocks = sws.get_industry_stocks('银行')
 获取指定股票的申万行业分类。
 
 **返回**: `dict` (格式与 `Reader.get_stock_industry` 统一)
+
+**返回示例**:
+```python
+{
+    'industry': '银行',          # 一级行业名称
+    'industry_code': '48',       # 一级行业代码 (前2位)
+    'sub_industry': '股份制银行'  # 二级行业名称
+}
+```
 
 
 ---
