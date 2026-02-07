@@ -930,6 +930,8 @@
 </tbody>
 </table>
 <blockquote>
+<p>[!IMPORTANT]
+该方法依赖于本地 <code>vipdoc/market/lday/*.day</code> 数据文件。 如果缺少相关数据，请先调用 <code>update_data()</code> 进行下载或手动同步。</p>
 <p><strong>注意</strong>: 该方法不再自动检查更新。如需获取最新数据，请先调用 <code>update_data()</code>。</p>
 </blockquote>
 <p><strong>调用示例</strong>:</p>
@@ -990,6 +992,10 @@ date
 </tr>
 </tbody>
 </table>
+<blockquote>
+<p>[!IMPORTANT]
+该方法依赖于本地 <code>vipdoc/market/minline/*.lc1</code> 或 <code>vipdoc/market/fzline/*.lc5</code> 数据文件。</p>
+</blockquote>
 <p><strong>调用示例</strong>:</p>
 <pre><code class="language-python"># 读取1分钟线
 df = reader.minute('600036', suffix=1)
@@ -1051,7 +1057,11 @@ date
 <hr />
 <h3 id="reader_3">Reader 概念、风格<a class="headerlink" href="#reader_3" title="Permanent link">&para;</a></h3>
 <h4 id="blockconcept_typenone"><code>block(concept_type=None)</code><a class="headerlink" href="#blockconcept_typenone" title="Permanent link">&para;</a></h4>
-<p>读取通达信本地板块与概念数据。</p>
+<p>读取通达信本地板块、概念与指数数据。</p>
+<blockquote>
+<p>[!TIP]
+该方法依赖于本地通达信安装目录（<code>T0002/hq_cache</code>）下的数据文件。 如果您的 <code>tdxdir</code> 路径下没有这些文件，将无法读取到数据。</p>
+</blockquote>
 <table>
 <thead>
 <tr>
@@ -1066,7 +1076,7 @@ date
 <td style="text-align: left;"><code>concept_type</code></td>
 <td style="text-align: left;">str</td>
 <td style="text-align: left;"><code>None</code></td>
-<td style="text-align: left;">筛选类型: <code>'GN'</code> (概念), <code>'FG'</code> (风格), <code>'ZS'</code> (指数)</td>
+<td style="text-align: left;">筛选下发类型: <code>'GN'</code> (概念), <code>'FG'</code> (风格), <code>'ZS'</code> (指数)</td>
 </tr>
 </tbody>
 </table>
@@ -1131,6 +1141,10 @@ info = reader.get_stock_industry('000001', source='sws')
 </tr>
 </tbody>
 </table>
+<blockquote>
+<p>[!TIP]
+当 <code>source='tdx'</code> 时，该方法依赖于本地通达信目录下的 <code>T0002/hq_cache/tdxzs3.cfg</code> 配置文件。</p>
+</blockquote>
 <p><strong>统一级别映射 (Unified Levels)</strong>:
 | 级别 (level) | 名称 | 说明 |
 | :--- | :--- | :--- |
@@ -1173,6 +1187,10 @@ info = reader.get_stock_industry('000001', source='sws')
 </tr>
 </tbody>
 </table>
+<blockquote>
+<p>[!TIP]
+当 <code>source='tdx'</code> 时，该方法需要解析 <code>T0002/hq_cache/tdxzs3.cfg</code> 和 <code>tdxhy.cfg</code> 文件。</p>
+</blockquote>
 <p><strong>调用示例</strong>:</p>
 <pre><code class="language-python"># 获取通达信医药行业股票
 stocks = reader.get_industry_stocks('医药')
@@ -1206,6 +1224,10 @@ stocks_sws = reader.get_industry_stocks('银行', source='sws')
 </tr>
 </tbody>
 </table>
+<blockquote>
+<p>[!TIP]
+当 <code>source='tdx'</code> 时，该方法需要解析 <code>T0002/hq_cache/tdxhy.cfg</code> 和 <code>tdxzs3.cfg</code> 文件。</p>
+</blockquote>
 <p><strong>统一返回格式 (Standardized Return)</strong>:</p>
 <pre><code class="language-python">{
     'industry': '银行',          # 一级行业名称
@@ -1279,7 +1301,12 @@ stocks_sws = reader.get_industry_stocks('银行', source='sws')
 <pre><code class="language-python">sws = SwsReader()
 l1 = sws.get_industries(level=1)
 </code></pre>
-<p><strong>返回</strong>: <code>list[str]</code> (行业名称列表, 如 <code>['银行', '房地产']</code>)</p>
+<p><strong>返回</strong>: <code>pd.DataFrame</code> 或 <code>list[str]</code></p>
+<p><strong>返回示例 (DataFrame)</strong>:</p>
+<pre><code class="language-python">  industry_name industry_code level_type
+0            银行                       1
+1          房地产                       1
+</code></pre>
 <h4 id="get_industry_stocksindustry_name"><code>get_industry_stocks(industry_name)</code><a class="headerlink" href="#get_industry_stocksindustry_name" title="Permanent link">&para;</a></h4>
 <p>获取指定申万行业的成分股。</p>
 <table>
@@ -1293,21 +1320,22 @@ l1 = sws.get_industries(level=1)
 </thead>
 <tbody>
 <tr>
-<td style="text-align: left;"><strong>调用示例</strong>:</td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
+<td style="text-align: left;"><code>industry_name</code></td>
+<td style="text-align: left;">str</td>
+<td style="text-align: left;">-</td>
+<td style="text-align: left;">行业名称 (如 <code>'银行'</code>)</td>
 </tr>
 </tbody>
 </table>
+<p><strong>调用示例</strong>:</p>
 <pre><code class="language-python">bank_stocks = sws.get_industry_stocks('银行')
 </code></pre>
 <p><strong>返回</strong>: <code>list[str]</code> (股票代码列表)</p>
 <p><strong>返回示例</strong>:</p>
 <pre><code class="language-python">['600036', '601398', ...]
 </code></pre>
-<h4 id="blockconcept_type1-return_dffalse"><code>block(concept_type='1', return_df=False)</code><a class="headerlink" href="#blockconcept_type1-return_dffalse" title="Permanent link">&para;</a></h4>
-<p>获取申万板块数据。</p>
+<h4 id="blocklevel1-return_dffalse"><code>block(level='1', return_df=False)</code><a class="headerlink" href="#blocklevel1-return_dffalse" title="Permanent link">&para;</a></h4>
+<p>获取申万行业成分股 (以板块格式返回)。</p>
 <table>
 <thead>
 <tr>
@@ -1319,10 +1347,10 @@ l1 = sws.get_industries(level=1)
 </thead>
 <tbody>
 <tr>
-<td style="text-align: left;"><code>concept_type</code></td>
+<td style="text-align: left;"><code>level</code></td>
 <td style="text-align: left;">str</td>
 <td style="text-align: left;"><code>'1'</code></td>
-<td style="text-align: left;">级别: <code>'1'</code>, <code>'2'</code>, <code>'3'</code></td>
+<td style="text-align: left;">行业级别: <code>'1'</code>, <code>'2'</code></td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>return_df</code></td>
@@ -1341,6 +1369,13 @@ l1 = sws.get_industries(level=1)
 <h4 id="get_stock_industrystock_code"><code>get_stock_industry(stock_code)</code><a class="headerlink" href="#get_stock_industrystock_code" title="Permanent link">&para;</a></h4>
 <p>获取指定股票的申万行业分类。</p>
 <p><strong>返回</strong>: <code>dict</code> (格式与 <code>Reader.get_stock_industry</code> 统一)</p>
+<p><strong>返回示例</strong>:</p>
+<pre><code class="language-python">{
+    'industry': '银行',          # 一级行业名称
+    'industry_code': '48',       # 一级行业代码 (前2位)
+    'sub_industry': '股份制银行'  # 二级行业名称
+}
+</code></pre>
 <hr />
 <h2 id="quotes">Quotes (在线行情)<a class="headerlink" href="#quotes" title="Permanent link">&para;</a></h2>
 <p>用于连接通达信服务器，获取实时或历史行情数据。</p>
