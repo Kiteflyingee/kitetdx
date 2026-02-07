@@ -853,7 +853,7 @@ stocks = reader.get_industry_stocks('煤炭')  # 使用行业名称
 # 3. 查询个股所属行业
 info = reader.get_stock_industry('600036')
 print(info)
-# {'l1_name': '银行', 'l1_code': 'T1002', 'l2_name': '股份制银行', 'l2_code': 'T100201', ...}
+# {'industry': '银行', 'industry_code': 'T1002', 'sub_industry': '股份制银行'}
 </code></pre>
 <h3 id="sws">申万行业 (SWS)<a class="headerlink" href="#sws" title="Permanent link">&para;</a></h3>
 <p>使用 <code>SwsReader</code> (或通用接口) 获取申万行业分类。</p>
@@ -871,7 +871,7 @@ stocks = sws.get_industry_stocks('银行')
 # 3. 查询个股所属行业
 info = sws.get_stock_industry('600036')
 print(info)
-# {'l1_name': '银行', 'l1_code': '480000', 'l2_name': '股份制银行', 'l2_code': '480300', ...}
+# {'industry': '银行', 'industry_code': '480000', 'sub_industry': '股份制银行'}
 </code></pre>
 <h2 id="_6">在线行情获取<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h2>
 <p>使用 <code>Quotes</code> 模块获取实时数据。</p>
