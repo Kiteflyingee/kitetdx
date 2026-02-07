@@ -64,7 +64,7 @@ stocks = reader.get_industry_stocks('煤炭')  # 使用行业名称
 # 3. 查询个股所属行业
 info = reader.get_stock_industry('600036')
 print(info)
-# {'l1_name': '银行', 'l1_code': 'T1002', 'l2_name': '股份制银行', 'l2_code': 'T100201', ...}
+# {'industry': '银行', 'industry_code': 'T1002', 'sub_industry': '股份制银行'}
 ```
 
 ### 申万行业 (SWS)
@@ -86,7 +86,7 @@ stocks = sws.get_industry_stocks('银行')
 # 3. 查询个股所属行业
 info = sws.get_stock_industry('600036')
 print(info)
-# {'l1_name': '银行', 'l1_code': '480000', 'l2_name': '股份制银行', 'l2_code': '480300', ...}
+# {'industry': '银行', 'industry_code': '480000', 'sub_industry': '股份制银行'}
 ```
 
 ## 在线行情获取
