@@ -191,7 +191,7 @@ class SwsReader:
     def get_stock_industry(self, stock_code):
         """
         Get industry info for a stock (mapped to Level 1 and 2).
-        Returns: dict with l1_name, l1_code, l2_name, l2_code, stock_code, stock_name
+        Returns: dict with l1_name, l1_code, l2_name
         """
         # Ensure stock_code is 6-digit string
         target_code = str(stock_code).split('.')[0].zfill(6)
@@ -207,10 +207,7 @@ class SwsReader:
         l1_code = code[:2] if len(code) >= 2 else ''
             
         return {
-            'stock_code': rec['stock_code'],
-            'stock_name': rec.get('stock_name', ''),
             'l1_name': rec['l1_name'],
             'l1_code': l1_code,
-            'l2_name': rec['l2_name'],
-            'l2_code': code[:4] if len(code) >= 4 else ''
+            'l2_name': rec['l2_name']
         }
