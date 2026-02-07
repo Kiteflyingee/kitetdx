@@ -115,7 +115,7 @@ print(f"白酒股数量: {len(liquor_stocks)}")
 
 # 获取指定股票的所属行业
 stock_ind = reader.get_stock_industry('000001')
-print(f"平安银行所属行业: {stock_ind['industry_name']} (代码: {stock_ind['industry_code']})")
+print(f"平安银行所属行业: {stock_ind['industry']} (代码: {stock_ind['industry_code']})")
 
 # 自动向上回溯父行业，构建完整分类链
 # Output example: 平安银行所属行业: 银行 (T1001) -> 父行业: TDX 金融 (T10)

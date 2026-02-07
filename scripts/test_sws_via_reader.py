@@ -36,9 +36,8 @@ def test_sws_via_reader():
     print(f"\n--- 4. 查询股票 {stock_code} 的申万行业归属 ---")
     info = reader.get_stock_industry(stock_code, source='sws')
     if info:
-        print(f"股票: {info.get('stock_name')} ({info.get('stock_code')})")
-        print(f"一级行业: {info.get('l1_name')} ({info.get('l1_code')})")
-        print(f"二级行业: {info.get('l2_name')} ({info.get('l2_code')})")
+        print(f"一级行业: {info.get('industry')} ({info.get('industry_code')})")
+        print(f"二级行业: {info.get('sub_industry')}")
     else:
         print(f"未找到股票 {stock_code} 的行业信息")
 
