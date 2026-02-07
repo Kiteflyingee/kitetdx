@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "kitetdx"
-version = "0.1.17"
+version = "0.1.18"
 description = "A custom wrapper and extension for mootdx."
 authors = ["Kiteflyingee"]
 readme = "README.md"
